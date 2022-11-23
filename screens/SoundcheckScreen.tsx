@@ -4,7 +4,7 @@ import { AuthContextType, IUser } from '../types/auth'
 import EditScreenInfo from '../components/EditScreenInfo'
 import { Text, View } from '../components/Themed'
 import { AuthContext } from '../context/authContext'
-import { RootTabScreenProps } from '../types'
+import { RootStackParamList, RootStackScreenProps, RootTabScreenProps } from '../types'
 import { getMe } from '../api/spotify'
 import { io } from "socket.io-client"
 import { Card } from '../components/Card'
@@ -15,7 +15,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useHeaderHeight } from '@react-navigation/elements'
 
 
-export default function TabOneScreen({ navigation }: RootTabScreenProps<'TabOne'>) {
+export default function SoundcheckScreen({ navigation }: RootStackScreenProps<'Soundcheck'>) {
   const colorScheme = useColorScheme()
   const { auth } = useContext(AuthContext) as AuthContextType
   const insets = useSafeAreaInsets()
@@ -66,13 +66,9 @@ export default function TabOneScreen({ navigation }: RootTabScreenProps<'TabOne'
 
   return (
     <ScrollView style={{ flex: 1, paddingHorizontal: 18, backgroundColor: Colors[colorScheme].background, paddingTop: 18 }} contentInsetAdjustmentBehavior="automatic">
-      {cards.map(card => (
-        <Card title={card.title} description={card.description} onPress={card.onPress} key={card.id} />
-      ))}
-      <Card title="Soundcheck" color="purple" description="Play the game!" onPress={() => navigation.navigate('Soundcheck')} />
+      <Card color="purple" title="Create a room" description="You are the host!" onPress={() => navigation.navigate('Create')} />
+      <Card color="gray" title="Join a room" description="Someone is already host" onPress={() => navigation.navigate('Join')} />
     </ScrollView>
-
-
   )
 }
 
