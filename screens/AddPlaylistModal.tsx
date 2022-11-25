@@ -16,18 +16,11 @@ export default function ModalScreen() {
   const [playlists, setPlaylists] = useState([])
   const [loading, setLoading] = useState(false)
 
-  useEffect(() => {
-    // getUserPlaylists(auth.token).then((res) => {
-    //   console.log(res.items)
-    // })
-  }, [])
-
   const create = () => {
     setLoading(true)
 
     createPlaylist(auth.token, text).then((res) => {
       addSongsToPlaylist(auth.token, res.id, []).then((res) => {
-        console.log(res)
         setLoading(false)
       })
     })

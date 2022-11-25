@@ -16,6 +16,8 @@ import { useHeaderHeight } from '@react-navigation/elements'
 import { SwitchComponent } from '../components/SwitchComponent'
 import { Picker } from '@react-native-picker/picker'
 import Toast from 'react-native-toast-message'
+import { TextInputComponent } from '../components/TextInputComponent'
+import { ButtonComponent } from '../components/ButtonComponent'
 
 const generateRandomString = (length: number) => {
   let text = ''
@@ -30,7 +32,8 @@ const generateRandomString = (length: number) => {
 export default function CreateRoomScreen({ navigation }: RootStackScreenProps<'Create'>) {
   const colorScheme = useColorScheme()
   const [roomCode, setRoomCode] = useState(generateRandomString(4))
-  const [songsPerUser, setSongsPerUser] = useState(1)
+  const [songsPerUser, setSongsPerUser] = useState<number>(2)
+  const [timeRange, setTimeRange] = useState<string>('medium_term')
 
   const styles = StyleSheet.create({
     container: {
@@ -73,39 +76,18 @@ export default function CreateRoomScreen({ navigation }: RootStackScreenProps<'C
       showToast('success', 'Room code too long', 'Room code must be 4 characters long')
       return
     }
-    navigation.navigate('Room', { roomCode: roomCode, songsPerUser: songsPerUser })
+    navigation.navigate('Room', { roomCode: roomCode, songsPerUser: songsPerUser, timeRange: timeRange, createRoom: true })
   }
 
   return (
     <ScrollView style={{ flex: 1, paddingHorizontal: 18, backgroundColor: Colors[colorScheme].background, paddingTop: 18 }} contentInsetAdjustmentBehavior="automatic">
-      <View style={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        borderRadius: 10,
-        backgroundColor: Colors.backgroundDark,
-        padding: 17,
-        marginBottom: 8,
-      }}>
-        <Text style={{ fontSize: 17 }}>Room code</Text>
-        <TextInput
-          style={{
-            color: 'lightgray',
-            fontSize: 17,
-            textAlign: 'right',
-          }}
-          onChangeText={(value: string) => {
-            if (value.length <= 4) {
-              setRoomCode(value)
-            } else {
-              showToast('error', 'Room code too long', 'Room code must be 4 characters long')
-            }
-          }}
-          value={roomCode}
-          placeholder="(ex. GFDS)"
-          autoCapitalize='characters'
-        />
-      </View>
+      <TextInputComponent title="Room code" onChange={(value: string) => {
+        if (value.length <= 4) {
+          setRoomCode(value)
+        } else {
+          showToast('error', 'Room code too long', 'Room code must be 4 characters long')
+        }
+      }} value={roomCode} placeholder="(ex. GFDS)" autoCapitalize='characters' />
       <View style={{ backgroundColor: Colors.backgroundDark, borderRadius: 10, marginBottom: 20 }}>
         <Text style={{ padding: 18, fontSize: 17 }}>Number of songs per user</Text>
         <Picker
@@ -115,13 +97,27 @@ export default function CreateRoomScreen({ navigation }: RootStackScreenProps<'C
           onValueChange={(itemValue, itemIndex) =>
             setSongsPerUser(itemValue)
           }>
-          <Picker.Item label="One" value="1" />
-          <Picker.Item label="Two" value="2" />
-          <Picker.Item label="Three" value="3" />
-          <Picker.Item label="Four" value="4" />
+          <Picker.Item label="One" value={1} />
+          <Picker.Item label="Two" value={2} />
+          <Picker.Item label="Three" value={3} />
+          <Picker.Item label="Four" value={4} />
         </Picker>
       </View>
-      <TouchableOpacity
+      <View style={{ backgroundColor: Colors.backgroundDark, borderRadius: 10, marginBottom: 20 }}>
+        <Text style={{ padding: 18, fontSize: 17 }}>Time range</Text>
+        <Picker
+          selectedValue={timeRange}
+          itemStyle={{ color: 'white', fontSize: 18 }}
+          style={{ backgroundColor: 'transparent' }}
+          onValueChange={(itemValue, itemIndex) =>
+            setTimeRange(itemValue)
+          }>
+          <Picker.Item label="One Month" value="short_term" />
+          <Picker.Item label="Half a year" value="medium_term" />
+          <Picker.Item label="Over a year" value="long_term" />
+        </Picker>
+      </View>
+      {/* <TouchableOpacity
         style={{
           backgroundColor: Colors[colorScheme].primary,
           padding: 10,
@@ -134,7 +130,8 @@ export default function CreateRoomScreen({ navigation }: RootStackScreenProps<'C
         onPress={() => createRoom()}
       >
         <Text style={{ color: 'white', fontSize: 16 }}>Create room</Text>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
+      <ButtonComponent title="Create room" onPress={createRoom} />
       {/* <SwitchComponent /> */}
     </ScrollView>
   )

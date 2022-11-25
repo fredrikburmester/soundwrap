@@ -37,20 +37,18 @@ const AuthProvider: React.FC<Props> = ({ children }) => {
     try {
       const res = await getMe(token)
 
-      console.log("res: ", res)
-
       const me = {
         id: res.id,
         name: res.display_name,
         avatar: res.images.length > 0 ? res.images[0].url : 'https://picsum.photos/200',
+        score: 0,
+        guesses: []
       }
-
-      console.log("me", me)
 
       const authObject = {
         authenticated: true,
         token: token,
-        user: me
+        user: me,
       }
 
       setAuth(authObject)

@@ -66,7 +66,7 @@ export default function TopSongsScreen({ navigation }: any) {
 
   useEffect(() => {
     navigation.setOptions({
-      title: 'Top Songs', headerLargeTitle: true, headerBlurEffect: 'prominent', headerTransparent: true, headerRight: () => (
+      title: 'Top Songs', headerLargeTitle: true, headerBlurEffect: 'dark', headerTransparent: true, headerRight: () => (
         <TouchableOpacity onPress={() => {
           createTwoButtonAlert()
           Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)

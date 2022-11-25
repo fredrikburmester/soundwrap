@@ -23,7 +23,7 @@ export type RootStackParamList = {
   Soundcheck: undefined
   Create: undefined
   Join: undefined
-  Room: { roomCode: string, songsPerUser: number }
+  Room: { roomCode: string, songsPerUser: number | undefined, timeRange: string | undefined, createRoom: boolean }
 }
 
 export type RootStackScreenProps<Screen extends keyof RootStackParamList> = NativeStackScreenProps<

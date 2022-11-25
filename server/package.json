@@ -2,12 +2,15 @@
   "name": "server",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/index.js",
+  "main": "dist/server/src/index.js",
   "scripts": {
     "prebuild": "tslint -c tslint.json -p tsconfig.json --fix",
     "build": "tsc",
     "prestart": "npm run build",
     "start": "node ."
+  },
+  "engines" : { 
+    "node" : ">=18.0.0"
   },
   "author": "",
   "type": "commonjs",

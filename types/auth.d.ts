@@ -1,7 +1,14 @@
+export interface IGuess {
+  currentSongIndex: number, 
+  guess: string
+}
+
 export interface IUser {
   id: string;
   name: string;
   avatar: string;
+  score: number;
+  guesses: IGuess[]
 }
 
 export interface IAuth {

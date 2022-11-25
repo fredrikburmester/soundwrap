@@ -52,7 +52,6 @@ export default function TopArtistsScreen() {
   const colorScheme = useColorScheme()
 
   const changeTimeRange = (index: number) => {
-    console.log("changeTimeRange", index)
     setSelectedSegment(index)
     setTimeRange(index === 0 ? TimeRange.SHORT : index === 1 ? TimeRange.MEDIUM : TimeRange.LONG)
   }

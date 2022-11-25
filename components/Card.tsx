@@ -16,7 +16,7 @@ interface Props {
 export const Card: React.FC<Props> = ({ title, description, onPress, color }) => {
   const colorScheme = useColorScheme()
 
-  let _color = Colors[colorScheme].primary
+  let _color = Colors.primary
 
   if (color === 'error') {
     _color = Colors.error

@@ -65,10 +65,6 @@ function RootNavigator() {
   const { auth } = useContext(AuthContext) as AuthContextType
   const colorScheme = useColorScheme()
 
-  useEffect(() => {
-    console.log('auth', auth)
-  }, [auth])
-
   if (!auth.authenticated) {
     return (
       <Stack.Navigator>
@@ -92,7 +88,7 @@ function RootNavigator() {
         }} />
         <Stack.Screen name="NotFound" component={NotFoundScreen} options={{ title: 'Oops!' }} />
         <Stack.Screen name="TopSongs" component={TopSongsScreen} />
-        <Stack.Screen name="TopArtists" component={TopArtistsScreen} options={{ title: 'Top Artists', headerLargeTitle: true, headerBlurEffect: 'prominent', headerTransparent: true, headerLargeTitleShadowVisible: true }} />
+        <Stack.Screen name="TopArtists" component={TopArtistsScreen} options={{ title: 'Top Artists', headerLargeTitle: true, headerBlurEffect: 'dark', headerTransparent: true, headerLargeTitleShadowVisible: true }} />
         <Stack.Screen name="Soundcheck" component={SoundcheckScreen} />
         <Stack.Screen name="Create" component={CreateRoomScreen} />
         <Stack.Screen name="Join" component={JoinRoomScreen} />

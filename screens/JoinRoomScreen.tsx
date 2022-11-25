@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { StyleSheet, Image, FlatList, TouchableOpacity, ScrollView } from 'react-native'
 import { AuthContextType, IUser } from '../types/auth'
 import EditScreenInfo from '../components/EditScreenInfo'
@@ -13,60 +13,35 @@ import useColorScheme from '../hooks/useColorScheme'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useHeaderHeight } from '@react-navigation/elements'
+import { TextInputComponent } from '../components/TextInputComponent'
+import Toast from 'react-native-toast-message'
+import { ButtonComponent } from '../components/ButtonComponent'
 
 export default function JoinRoomScreen({ navigation }: RootStackScreenProps<'Join'>) {
   const colorScheme = useColorScheme()
-  const { auth } = useContext(AuthContext) as AuthContextType
-  const insets = useSafeAreaInsets()
-  const headerHeight = useHeaderHeight()
-
-  const cards = [
-    {
-      id: 0,
-      title: 'Top songs',
-      description: 'Check out your top songs',
-      onPress: () => navigation.navigate('TopSongs'),
-    },
-    {
-      id: 1,
-      title: 'Top artists',
-      description: 'Check out your top artists',
-      onPress: () => navigation.navigate('TopArtists')
-    },
-  ]
-
-  const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: Colors[colorScheme].background,
-    },
-    title: {
-      fontSize: 30,
-      fontWeight: 'bold',
-      marginBottom: 20,
-    },
-    avatar: {
-      width: 100,
-      height: 100,
-      borderRadius: 50,
-      marginVertical: 20,
-      borderColor: Colors[colorScheme].primary,
-      borderStyle: 'solid',
-      borderWidth: 2,
-    },
-  })
-
-  useEffect(() => {
-    const socket = io('ws://localhost:5005', {
-      transports: ["websocket"],
+  const [roomCode, setRoomCode] = useState('')
+  const showToast = (type: 'success' | 'error' | 'info', text1: string, text2: string) => {
+    Toast.show({
+      type: type,
+      text1: text1,
+      text2: text2,
     })
-    socket.emit('hey')
-  }, [])
+  }
+
+  const joinRoom = () => {
+    navigation.navigate('Room', { roomCode: roomCode, songsPerUser: undefined, timeRange: undefined, createRoom: false })
+  }
 
   return (
     <ScrollView style={{ flex: 1, paddingHorizontal: 18, backgroundColor: Colors[colorScheme].background, paddingTop: 18 }} contentInsetAdjustmentBehavior="automatic">
-      <Card color="purple" title="Create a room" description="You are the host!" onPress={() => console.log("go")} />
-      <Card color="gray" title="Join a room" description="Someone is already host" onPress={() => console.log("go")} />
+      <TextInputComponent title="Room code" onChange={(value: string) => {
+        if (value.length <= 4) {
+          setRoomCode(value)
+        } else {
+          showToast('error', 'Room code too long', 'Room code must be 4 characters long')
+        }
+      }} value={roomCode} placeholder="(ex. GFDS)" autoCapitalize='characters' />
+      <ButtonComponent title="Join room" onPress={joinRoom} />
     </ScrollView>
   )
 }

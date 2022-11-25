@@ -23,28 +23,28 @@ export default function App() {
       <BaseToast
         {...props}
         text1Style={{
-          fontSize: 14,
+          fontSize: 17,
           color: 'white'
         }}
         text2Style={{
-          fontSize: 12,
+          fontSize: 14,
           color: 'white'
         }}
-        style={{ backgroundColor: Colors.backgroundDark, borderLeftColor: Colors.primary }}
+        style={{ backgroundColor: Colors.primary, borderLeftColor: Colors.primary, height: 80, borderRadius: 15, marginTop: 20, width: '90%' }}
       />
     ),
     error: (props: any) => (
       <ErrorToast
         {...props}
         text1Style={{
-          fontSize: 14,
+          fontSize: 17,
           color: 'white'
         }}
         text2Style={{
-          fontSize: 12,
+          fontSize: 14,
           color: 'white'
         }}
-        style={{ backgroundColor: Colors.backgroundDark, borderLeftColor: Colors.error }}
+        style={{ backgroundColor: Colors.error, borderLeftColor: Colors.error, height: 80, borderRadius: 15, marginTop: 20, width: '90%' }}
       />
     ),
   }

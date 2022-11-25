@@ -35,7 +35,7 @@ export default function LoginScreen({ navigation }: RootStackScreenProps<'Login'
   const [request, response, promptAsync] = useAuthRequest({
     responseType: ResponseType.Token,
     clientId: 'b628fccd4e284c469c95f515f14d079e',
-    scopes: ['user-read-email', 'playlist-modify-public', 'user-top-read', 'playlist-read-private'],
+    scopes: ['user-read-email', 'playlist-modify-public', 'user-top-read', 'playlist-read-private', 'streaming', 'user-modify-playback-state', 'user-read-private', 'user-read-playback-state', 'user-read-playback-position', 'user-modify-playback-state', 'user-read-currently-playing'],
     // In order to follow the "Authorization Code Flow" to fetch token after authorizationEndpoint
     // this must be set to false
     usePKCE: false,
@@ -49,7 +49,6 @@ export default function LoginScreen({ navigation }: RootStackScreenProps<'Login'
   useEffect(() => {
     if (response?.type === 'success') {
       const { access_token } = response.params
-      console.log("login successful, token: ", access_token)
       login(access_token)
       setLoading(false)
     } else {
