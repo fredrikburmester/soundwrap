@@ -69,8 +69,18 @@ io.on('connection', (socket) => {
   console.log('connected')
 
 	socket.on(ClientEmits.REQUEST_TO_JOIN_ROOM, ({roomCode, user, token}: {roomCode: string, user: IUser, token: string}) => {
-		if (!roomCode || !user || !token) {
-			socket.emit(ServerEmits.REQUEST_TO_JOIN_ROOM_REJECTED, "You're missing some information");
+		if(!roomCode) {
+			socket.emit(ServerEmits.REQUEST_TO_JOIN_ROOM_REJECTED, 'No room code provided. Idk...');
+			return;
+		}
+
+		if(!user) {
+			socket.emit(ServerEmits.REQUEST_TO_JOIN_ROOM_REJECTED, 'No user provided. Log in.');
+			return;
+		}
+
+		if(!token) {
+			socket.emit(ServerEmits.REQUEST_TO_JOIN_ROOM_REJECTED, 'No token provided. Try logging in again.');
 			return;
 		}
 
@@ -84,7 +94,7 @@ io.on('connection', (socket) => {
 			// Get top songs for user
 			getTopSongsForUser(room.timeRange, room.songsPerUser, token, user).then((songs) => {
 				if(songs.length === 0) {
-					socket.emit(ServerEmits.REQUEST_TO_JOIN_ROOM_REJECTED, errors.pop());
+					socket.emit(ServerEmits.REQUEST_TO_JOIN_ROOM_REJECTED, 'Missing top songs');
 					return;
 				}
 
@@ -169,7 +179,6 @@ io.on('connection', (socket) => {
 		//
 
 		const room = rooms.find((room) => room.roomCode === roomCode);
-		console.log('room', room);
 		if (!room) {
 			return;
 		}
@@ -185,7 +194,7 @@ io.on('connection', (socket) => {
 			const answer = room.songs[currentSongIndex].player.id;
 			const correct = answer === guess;
 
-			console.log(currentGuess, answer, correct);
+			console.log(`${user.name} guessed ${guess} on ${room.songs[currentSongIndex].player.name} for song ${currentSongIndex} and it was ${correct ? 'correct' : 'incorrect'}`);
 
 			if (currentGuess && currentGuess.guess !== guess) { // Update guess
 				currentGuess.guess = guess;
