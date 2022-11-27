@@ -49,13 +49,31 @@ export default function App() {
     ),
   }
 
+  const showToast = (type: 'success' | 'error' | 'info', text1: string, text2: string) => {
+    Toast.show({
+      type: type,
+      text1: text1,
+      text2: text2,
+    })
+  }
+
   useEffect(() => {
+    socket.connect()
+
     socket.on('connect', () => {
       console.log('connect')
     })
 
     socket.on('disconnect', () => {
       console.log('disconnected')
+    })
+
+    socket.on('error', (title: string, error: string) => {
+      showToast('error', title, error)
+    })
+
+    socket.on('info', (title: string, message: string) => {
+      showToast('success', title, message)
     })
 
     return () => {

@@ -4,7 +4,7 @@ import { AuthContextType, IUser } from '../types/auth'
 import EditScreenInfo from '../components/EditScreenInfo'
 import { Text, View } from '../components/Themed'
 import { AuthContext } from '../context/authContext'
-import { RootStackParamList, RootStackScreenProps, RootTabScreenProps } from '../types'
+import { RootStackParamList, RootStackScreenProps } from '../types'
 import { getMe } from '../api/spotify'
 import { io } from "socket.io-client"
 import { Card } from '../components/Card'
@@ -57,10 +57,18 @@ export default function CreateRoomScreen({ navigation }: RootStackScreenProps<'C
   })
 
   useEffect(() => {
-    const socket = io('ws://localhost:5005', {
-      transports: ["websocket"],
+    navigation.setOptions({
+      title: 'Create room',
+      headerBackTitle: 'Back',
+      // headerLargeTitle: false,
+      // headerLargeStyle: {
+      //   backgroundColor: Colors.background,
+      // },
+      headerStyle: {
+        backgroundColor: Colors.background,
+      },
+      headerBlurEffect: 'dark',
     })
-    socket.emit('hey')
   }, [])
 
   const showToast = (type: 'success' | 'error' | 'info', text1: string, text2: string) => {

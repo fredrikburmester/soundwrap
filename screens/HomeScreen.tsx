@@ -65,6 +65,10 @@ export default function HomeScreen({ navigation }: RootStackScreenProps<'Home'>)
       headerLargeStyle: {
         backgroundColor: Colors.background,
       },
+      headerStyle: {
+        backgroundColor: Colors.background,
+      },
+      headerShadowVisible: false,
       headerBlurEffect: 'dark',
       headerRight: () => (
         <TouchableOpacity onPress={() => navigation.navigate('Profile')}>

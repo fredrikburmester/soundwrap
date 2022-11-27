@@ -4,7 +4,7 @@ import { AuthContextType, IUser } from '../types/auth'
 import EditScreenInfo from '../components/EditScreenInfo'
 import { Text, View } from '../components/Themed'
 import { AuthContext } from '../context/authContext'
-import { RootStackParamList, RootStackScreenProps, RootTabScreenProps } from '../types'
+import { RootStackParamList, RootStackScreenProps } from '../types'
 import { getMe } from '../api/spotify'
 import { io } from "socket.io-client"
 import { Card } from '../components/Card'
@@ -59,10 +59,13 @@ export default function SoundcheckScreen({ navigation }: RootStackScreenProps<'S
 
   useEffect(() => {
     navigation.setOptions({
-      headerLargeTitle: true,
-      headerLargeStyle: {
+      headerStyle: {
         backgroundColor: Colors.background,
       },
+      // headerLargeTitle: false,
+      // headerLargeStyle: {
+      //   backgroundColor: Colors.background,
+      // },
       headerBlurEffect: 'dark',
       title: "Let's play!"
     })

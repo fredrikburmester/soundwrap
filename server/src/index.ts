@@ -216,6 +216,8 @@ io.on('connection', (socket) => {
 				} else if (currentGuess.guess !== answer && correct) {
 					player.score++
 				}
+
+				currentGuess.guess = guess;
 			} else if(currentGuess && currentGuess.guess === guess ) {
 				// Do nothing
 			} else {																				// New guess

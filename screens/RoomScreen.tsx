@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useRef, useState } from 'react'
-import { StyleSheet, Image, FlatList, TouchableOpacity, ScrollView, TextInput, Switch, Button, Alert, Pressable, TouchableHighlight } from 'react-native'
+import { StyleSheet, Image, FlatList, TouchableOpacity, ScrollView, TextInput, Switch, Button, Alert, Pressable, TouchableHighlight, RefreshControl } from 'react-native'
 import { AuthContextType, IAuth, IUser } from '../types/auth'
 import EditScreenInfo from '../components/EditScreenInfo'
 import { Text, View } from '../components/Themed'
@@ -62,21 +62,8 @@ export default function RoomScreen({ route, navigation }: RootStackScreenProps<'
     socket.emit(ClientEmits.GUESS, { guess: newGuess, roomCode: roomCode, user: auth.user, currentSongIndex: currentSongIndex })
   }
 
-  const insets = useSafeAreaInsets()
-  const headerHeight = useHeaderHeight()
-
-  const showToast = (type: 'success' | 'error' | 'info', text1: string, text2: string, time = 3000) => {
-    Toast.show({
-      type: type,
-      text1: text1,
-      text2: text2,
-      visibilityTime: time,
-    })
-  }
-
   const leaveRoom = () => {
     socket.emit(ClientEmits.LEAVE_ROOM, { roomCode: roomCode, user: auth.user })
-    // showToast('success', 'Left room', 'You left the room')
     navigation.navigate('Home')
   }
 
@@ -90,12 +77,6 @@ export default function RoomScreen({ route, navigation }: RootStackScreenProps<'
       { text: 'Leave', onPress: () => leaveRoom() },
     ])
   }
-
-  // setTimeout(() => {
-  //   if (!connectedRef.current) {
-  //     showToast('error', 'Error', 'Connection to server lost...', 2000)
-  //   }
-  // }, 3000)
 
   useEffect(() => {
     if (createRoom) {
@@ -121,8 +102,7 @@ export default function RoomScreen({ route, navigation }: RootStackScreenProps<'
       setPlayers(room.players)
     })
 
-    socket.on(ServerEmits.REQUEST_TO_CREATE_ROOM_REJECTED, (error: string) => {
-      showToast('error', 'Error', error)
+    socket.on(ServerEmits.REQUEST_TO_CREATE_ROOM_REJECTED, () => {
       navigation.navigate('Home')
     })
 
@@ -135,13 +115,7 @@ export default function RoomScreen({ route, navigation }: RootStackScreenProps<'
       setConnected(true)
     })
 
-    socket.on(ServerEmits.REQUEST_TO_JOIN_ROOM_REJECTED, (error: string) => {
-      showToast('error', 'Error', error)
-      navigation.navigate('Home')
-    })
-
-    socket.on(ServerEmits.NO_SONGS_AVAILABLE, () => {
-      showToast('error', 'Missing top songs!', "No songs, no game.")
+    socket.on(ServerEmits.REQUEST_TO_JOIN_ROOM_REJECTED, () => {
       navigation.navigate('Home')
     })
 
@@ -161,10 +135,17 @@ export default function RoomScreen({ route, navigation }: RootStackScreenProps<'
     })
 
     navigation.setOptions({
-      title: `${roomCode}`,
+      title: ``,
+      headerBackTitleVisible: true,
+      headerBackTitle: 'Back',
+      headerBackVisible: true,
       headerLargeTitle: false,
-      headerBlurEffect: 'dark',
-      headerTransparent: true,
+      headerStyle: {
+        backgroundColor: Colors.background,
+      },
+      headerShadowVisible: false,
+      // headerBlurEffect: 'dark',
+      // headerTransparent: true,
       headerRight: () => (
         <>
           {gamePositionRef.current === 0 && <Ionicons name="close" size={24} color="red" style={{ marginRight: 20 }} onPress={() => openLeaveRoomAlert()} />}
@@ -178,10 +159,15 @@ export default function RoomScreen({ route, navigation }: RootStackScreenProps<'
     return null
   }
 
+  const onRefresh = () => {
+    socket.connect()
+    socket.emit('requestRoomUpdate', { roomCode: roomCode })
+  }
+
   if (gamePosition === 0) {
     return (
       <FlashList
-        contentInsetAdjustmentBehavior="automatic"
+        refreshControl={<RefreshControl refreshing={false} onRefresh={onRefresh} />}
         data={players}
         renderItem={({ item }) =>
           <View style={{ marginHorizontal: 20 }}>
@@ -214,7 +200,7 @@ export default function RoomScreen({ route, navigation }: RootStackScreenProps<'
     )
   } else if (gamePosition === 1) {
     return (
-      <ScrollView contentInsetAdjustmentBehavior="automatic">
+      <ScrollView contentInsetAdjustmentBehavior="automatic" refreshControl={<RefreshControl refreshing={false} onRefresh={onRefresh} />}>
         <View style={{ marginHorizontal: 20, marginVertical: 20 }}>
           <Text style={{
             fontSize: 12,
@@ -237,7 +223,7 @@ export default function RoomScreen({ route, navigation }: RootStackScreenProps<'
             </View>
           </TouchableHighlight>
         )}
-        <View style={{ height: 90, marginTop: 12 }}>
+        <View style={{ height: 90, marginTop: 0 }}>
           <SpotifyPlayer songUri={songs[currentSongIndex].song.uri} />
         </View>
         {isHost && <View style={{ marginHorizontal: 20, marginVertical: 20 }}>

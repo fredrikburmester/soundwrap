@@ -4,7 +4,7 @@ import { AuthContextType, IUser } from '../types/auth'
 import EditScreenInfo from '../components/EditScreenInfo'
 import { Text, View } from '../components/Themed'
 import { AuthContext } from '../context/authContext'
-import { RootStackParamList, RootStackScreenProps, RootTabScreenProps } from '../types'
+import { RootStackParamList, RootStackScreenProps } from '../types'
 import { getMe } from '../api/spotify'
 import { io } from "socket.io-client"
 import { Card } from '../components/Card'
@@ -20,33 +20,37 @@ import { ButtonComponent } from '../components/ButtonComponent'
 export default function JoinRoomScreen({ navigation }: RootStackScreenProps<'Join'>) {
   const colorScheme = useColorScheme()
   const [roomCode, setRoomCode] = useState('')
-  const showToast = (type: 'success' | 'error' | 'info', text1: string, text2: string) => {
-    Toast.show({
-      type: type,
-      text1: text1,
-      text2: text2,
-    })
-  }
 
   const joinRoom = () => {
     navigation.navigate('Room', { roomCode: roomCode, songsPerUser: undefined, timeRange: undefined, createRoom: false })
   }
+
+  useEffect(() => {
+    navigation.setOptions({
+      title: 'Join Room',
+      // headerLargeTitle: false,
+      // headerLargeStyle: {
+      //   backgroundColor: Colors.background,
+      // },
+      headerBackTitle: 'Back',
+      headerStyle: {
+        backgroundColor: Colors.background,
+      },
+      headerBlurEffect: 'dark',
+    })
+  }, [])
 
   return (
     <ScrollView style={{ flex: 1, paddingHorizontal: 18, backgroundColor: Colors[colorScheme].background, paddingTop: 18 }} contentInsetAdjustmentBehavior="automatic">
       <TextInputComponent
         title="Room code"
         onChange={(value: string) => {
-          if (value.length <= 4) {
-            setRoomCode(value)
-          } else {
-            showToast('error', 'Room code too long', 'Room code must be 4 characters long')
-          }
+          setRoomCode(value)
         }}
         value={roomCode}
         placeholder="(ex. GFDS)"
         autoCapitalize='characters'
-        autoFocus={true} />
+        autoFocus={false} />
       <ButtonComponent title="Join room" onPress={joinRoom} />
     </ScrollView>
   )
