@@ -92,6 +92,7 @@ export default function TopArtistsScreen() {
           </View>
         </Animated.View>
       ))}
+      {artists.length === 0 && !loading && <Text style={{ textAlign: 'center', marginTop: 20 }}>You have no top artists for this time period!</Text>}
       {loading && <View style={{ flex: 1, backgroundColor: Colors[colorScheme].background, marginTop: 20 }}>
         <ActivityIndicator size="small" color="white" />
       </View>}

@@ -4,7 +4,7 @@ import { AuthContextType, IAuth, IUser } from '../types/auth'
 import EditScreenInfo from '../components/EditScreenInfo'
 import { Text, View } from '../components/Themed'
 import { AuthContext } from '../context/authContext'
-import { RootStackParamList, RootStackScreenProps, RootTabScreenProps } from '../types'
+import { RootStackParamList, RootStackScreenProps } from '../types'
 import { getMe, getTopSongs } from '../api/spotify'
 import { io } from "socket.io-client"
 import { Card } from '../components/Card'
@@ -77,7 +77,7 @@ export default function RoomScreen({ route, navigation }: RootStackScreenProps<'
   const leaveRoom = () => {
     socket.emit(ClientEmits.LEAVE_ROOM, { roomCode: roomCode, user: auth.user })
     // showToast('success', 'Left room', 'You left the room')
-    navigation.navigate('Root')
+    navigation.navigate('Home')
   }
 
   const openLeaveRoomAlert = () => {
@@ -123,7 +123,7 @@ export default function RoomScreen({ route, navigation }: RootStackScreenProps<'
 
     socket.on(ServerEmits.REQUEST_TO_CREATE_ROOM_REJECTED, (error: string) => {
       showToast('error', 'Error', error)
-      navigation.navigate('Root')
+      navigation.navigate('Home')
     })
 
     socket.on(ServerEmits.REQUEST_TO_JOIN_ROOM_ACCEPTED, (room: IRoom) => {
@@ -137,12 +137,12 @@ export default function RoomScreen({ route, navigation }: RootStackScreenProps<'
 
     socket.on(ServerEmits.REQUEST_TO_JOIN_ROOM_REJECTED, (error: string) => {
       showToast('error', 'Error', error)
-      navigation.navigate('Root')
+      navigation.navigate('Home')
     })
 
     socket.on(ServerEmits.NO_SONGS_AVAILABLE, () => {
       showToast('error', 'Missing top songs!', "No songs, no game.")
-      navigation.navigate('Root')
+      navigation.navigate('Home')
     })
 
     socket.on(ServerEmits.ROOM_UPDATED, (room: IRoom) => {
@@ -174,7 +174,7 @@ export default function RoomScreen({ route, navigation }: RootStackScreenProps<'
   }, [])
 
   if (!auth.user) {
-    navigation.navigate('Root')
+    navigation.navigate('Home')
     return null
   }
 

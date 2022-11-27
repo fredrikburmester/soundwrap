@@ -11,9 +11,10 @@ interface Props {
   description: string
   color?: 'error' | string
   onPress: () => void
+  style?: any
 }
 
-export const Card: React.FC<Props> = ({ title, description, onPress, color }) => {
+export const Card: React.FC<Props> = ({ title, description, onPress, color, style }) => {
   const colorScheme = useColorScheme()
 
   let _color = Colors.primary
@@ -27,7 +28,6 @@ export const Card: React.FC<Props> = ({ title, description, onPress, color }) =>
   const styles = StyleSheet.create({
     card: {
       padding: 18,
-      marginBottom: 18,
       backgroundColor: _color,
       borderRadius: 10,
       justifyContent: 'center',
@@ -51,15 +51,13 @@ export const Card: React.FC<Props> = ({ title, description, onPress, color }) =>
 
   return (
     <TouchableOpacity onPress={click}>
-      <View style={styles.card}>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-          <View style={{ flexDirection: 'column' }}>
-            <Text style={styles.cardDescription}>{description}</Text>
-            <Text style={styles.cardTitle}>{title}</Text>
-          </View>
-          <Ionicons name="chevron-forward" size={24} color="white" style={{ opacity: 0.8 }} />
+      <View style={[styles.card, { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }, style]}>
+        <View style={{ flexDirection: 'column' }}>
+          <Text style={styles.cardDescription}>{description}</Text>
+          <Text style={styles.cardTitle}>{title}</Text>
         </View>
-      </View >
+        <Ionicons name="chevron-forward" size={24} color="white" style={{ opacity: 0.8 }} />
+      </View>
     </TouchableOpacity>
   )
 }

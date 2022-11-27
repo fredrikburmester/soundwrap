@@ -72,29 +72,25 @@ export default function CreateRoomScreen({ navigation }: RootStackScreenProps<'C
   }
 
   const createRoom = () => {
-    if (roomCode.length !== 4) {
-      showToast('success', 'Room code too long', 'Room code must be 4 characters long')
-      return
-    }
     navigation.navigate('Room', { roomCode: roomCode, songsPerUser: songsPerUser, timeRange: timeRange, createRoom: true })
   }
 
   return (
     <ScrollView style={{ flex: 1, paddingHorizontal: 18, backgroundColor: Colors[colorScheme].background, paddingTop: 18 }} contentInsetAdjustmentBehavior="automatic">
       <TextInputComponent title="Room code" onChange={(value: string) => {
-        if (value.length <= 4) {
+        if (value.length <= 10) {
           setRoomCode(value)
         } else {
-          showToast('error', 'Room code too long', 'Room code must be 4 characters long')
+          showToast('error', 'Room code too long', 'Must be less than 10 characters long')
         }
       }} value={roomCode} placeholder="(ex. GFDS)" autoCapitalize='characters' />
-      <View style={{ backgroundColor: Colors.backgroundDark, borderRadius: 10, marginBottom: 20 }}>
+      <View style={{ backgroundColor: Colors.backgroundDark, borderRadius: 10, marginBottom: 8 }}>
         <Text style={{ padding: 18, fontSize: 17 }}>Number of songs per user</Text>
         <Picker
           selectedValue={songsPerUser}
           itemStyle={{ color: 'white', fontSize: 18 }}
           style={{ backgroundColor: 'transparent' }}
-          onValueChange={(itemValue, itemIndex) =>
+          onValueChange={(itemValue) =>
             setSongsPerUser(itemValue)
           }>
           <Picker.Item label="One" value={1} />
@@ -103,7 +99,7 @@ export default function CreateRoomScreen({ navigation }: RootStackScreenProps<'C
           <Picker.Item label="Four" value={4} />
         </Picker>
       </View>
-      <View style={{ backgroundColor: Colors.backgroundDark, borderRadius: 10, marginBottom: 20 }}>
+      <View style={{ backgroundColor: Colors.backgroundDark, borderRadius: 10, marginBottom: 8 }}>
         <Text style={{ padding: 18, fontSize: 17 }}>Time range</Text>
         <Picker
           selectedValue={timeRange}

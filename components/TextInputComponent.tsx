@@ -8,9 +8,10 @@ interface Props {
   onChange: (value: string) => void
   autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters'
   placeholder?: string
+  autoFocus?: boolean
 }
 
-export const TextInputComponent: React.FC<Props> = ({ title, onChange, value, autoCapitalize, placeholder }) => {
+export const TextInputComponent: React.FC<Props> = ({ title, onChange, value, autoCapitalize, placeholder, autoFocus }) => {
 
   return (
     <View style={{
@@ -24,6 +25,7 @@ export const TextInputComponent: React.FC<Props> = ({ title, onChange, value, au
     }}>
       <Text style={{ fontSize: 17, color: 'white' }}>{title}</Text>
       <TextInput
+        autoFocus={autoFocus}
         style={{
           color: 'lightgray',
           fontSize: 17,

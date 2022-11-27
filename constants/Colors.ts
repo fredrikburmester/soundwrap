@@ -19,9 +19,10 @@ export default {
     primary: '#239637',
   },
   primary: '#22B458',
-  primaryLight: '#1DB753',
-  secondary: '#1F1F1E',
+  primaryLight: '#27CE64',
+  secondary: '#DB7C26',
+  third: '#3891A6',
   background: '#1F1F1E',
   backgroundDark: '#1a1a19',
-  error: '#DC2625',
+  error: '#BB0A21',
 };

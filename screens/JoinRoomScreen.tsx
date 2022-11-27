@@ -34,13 +34,19 @@ export default function JoinRoomScreen({ navigation }: RootStackScreenProps<'Joi
 
   return (
     <ScrollView style={{ flex: 1, paddingHorizontal: 18, backgroundColor: Colors[colorScheme].background, paddingTop: 18 }} contentInsetAdjustmentBehavior="automatic">
-      <TextInputComponent title="Room code" onChange={(value: string) => {
-        if (value.length <= 4) {
-          setRoomCode(value)
-        } else {
-          showToast('error', 'Room code too long', 'Room code must be 4 characters long')
-        }
-      }} value={roomCode} placeholder="(ex. GFDS)" autoCapitalize='characters' />
+      <TextInputComponent
+        title="Room code"
+        onChange={(value: string) => {
+          if (value.length <= 4) {
+            setRoomCode(value)
+          } else {
+            showToast('error', 'Room code too long', 'Room code must be 4 characters long')
+          }
+        }}
+        value={roomCode}
+        placeholder="(ex. GFDS)"
+        autoCapitalize='characters'
+        autoFocus={true} />
       <ButtonComponent title="Join room" onPress={joinRoom} />
     </ScrollView>
   )

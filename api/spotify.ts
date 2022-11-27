@@ -32,10 +32,8 @@ export const getTopSongs = async (token: string, timeRange: string, offset = 0, 
     },
   });
 
-  console.log(response)
-
   if(response.status !== 200) {
-    return Promise.reject();
+    throw new Error("Failed to fetch top songs");
   }
 
   return response.json() as Promise<SpotifyTopTracksResult>;

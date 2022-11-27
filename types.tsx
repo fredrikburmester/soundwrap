@@ -14,7 +14,7 @@ declare global {
 }
 
 export type RootStackParamList = {
-  Root: NavigatorScreenParams<RootTabParamList> | undefined
+  // Root: NavigatorScreenParams<RootTabParamList> | undefined
   AddPlaylistModal: undefined
   NotFound: undefined
   Login: undefined
@@ -23,6 +23,8 @@ export type RootStackParamList = {
   Soundcheck: undefined
   Create: undefined
   Join: undefined
+  Home: undefined
+  Profile: undefined
   Room: { roomCode: string, songsPerUser: number | undefined, timeRange: string | undefined, createRoom: boolean }
 }
 
@@ -31,12 +33,12 @@ export type RootStackScreenProps<Screen extends keyof RootStackParamList> = Nati
   Screen
 >
 
-export type RootTabParamList = {
-  TabOne: undefined
-  TabTwo: undefined
-}
+// export type RootTabParamList = {
+//   TabOne: undefined
+//   TabTwo: undefined
+// }
 
-export type RootTabScreenProps<Screen extends keyof RootTabParamList> = CompositeScreenProps<
-  BottomTabScreenProps<RootTabParamList, Screen>,
-  NativeStackScreenProps<RootStackParamList>
->
+// export type RootTabScreenProps<Screen extends keyof RootTabParamList> = CompositeScreenProps<
+//   BottomTabScreenProps<RootTabParamList, Screen>,
+//   NativeStackScreenProps<RootStackParamList>
+// >

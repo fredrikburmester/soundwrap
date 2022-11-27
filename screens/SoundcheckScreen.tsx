@@ -58,16 +58,20 @@ export default function SoundcheckScreen({ navigation }: RootStackScreenProps<'S
   })
 
   useEffect(() => {
-    const socket = io('ws://localhost:5005', {
-      transports: ["websocket"],
+    navigation.setOptions({
+      headerLargeTitle: true,
+      headerLargeStyle: {
+        backgroundColor: Colors.background,
+      },
+      headerBlurEffect: 'dark',
+      title: "Let's play!"
     })
-    socket.emit('hey')
   }, [])
 
   return (
     <ScrollView style={{ flex: 1, paddingHorizontal: 18, backgroundColor: Colors[colorScheme].background, paddingTop: 18 }} contentInsetAdjustmentBehavior="automatic">
-      <Card color="purple" title="Create a room" description="You are the host!" onPress={() => navigation.navigate('Create')} />
-      <Card color="gray" title="Join a room" description="Someone is already host" onPress={() => navigation.navigate('Join')} />
+      <Card title="Join a room" description="You guys already have a room?" onPress={() => navigation.navigate('Join')} style={{ height: 100, marginBottom: 20 }} />
+      <Card title="Create a room" description="You'll be the host!" onPress={() => navigation.navigate('Create')} style={{ marginBottom: 20, backgroundColor: Colors.secondary }} />
     </ScrollView>
   )
 }

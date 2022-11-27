@@ -88,6 +88,8 @@ export default function TopSongsScreen({ navigation }: any) {
         console.log("error", res)
         logout()
       }
+    }).catch((err) => {
+      console.log(err)
     })
   }, [timeRange])
 
@@ -133,6 +135,7 @@ export default function TopSongsScreen({ navigation }: any) {
       )}
       ListFooterComponent={
         <>
+          {songs.length === 0 && !loading && <Text style={{ textAlign: 'center', marginTop: 20 }}>You have no top songs for this time period!</Text>}
           {loading || loadingMore && <ActivityIndicator size="small" color="white" style={{ marginTop: 20 }} />}
         </>
       }

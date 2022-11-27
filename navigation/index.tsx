@@ -17,11 +17,11 @@ import { AuthContext } from '../context/authContext'
 import useColorScheme from '../hooks/useColorScheme'
 import LoginScreen from '../screens/LoginScreen'
 import NotFoundScreen from '../screens/NotFoundScreen'
-import TabOneScreen from '../screens/TabOneScreen'
-import TabTwoScreen from '../screens/TabTwoScreen'
+import TabOneScreen from '../screens/HomeScreen'
+import TabTwoScreen from '../screens/ProfileScreen'
 import TopArtistsScreen from '../screens/TopArtistsScreen'
 import TopSongsScreen from '../screens/TopSongsScreen'
-import { RootStackParamList, RootTabParamList, RootTabScreenProps } from '../types'
+import { RootStackParamList } from '../types'
 import LinkingConfiguration from './LinkingConfiguration'
 import * as Haptics from 'expo-haptics'
 import AddPlaylistModal from '../screens/AddPlaylistModal'
@@ -29,6 +29,8 @@ import SoundcheckScreen from '../screens/SoundcheckScreen'
 import CreateRoomScreen from '../screens/CreateRoomScreen'
 import JoinRoomScreen from '../screens/JoinRoomScreen'
 import RoomScreen from '../screens/RoomScreen'
+import HomeScreen from '../screens/HomeScreen'
+import ProfileScreen from '../screens/ProfileScreen'
 
 
 type Props = {
@@ -74,10 +76,13 @@ function RootNavigator() {
   } else {
     return (
       <Stack.Navigator>
-        <Stack.Screen name="Root" component={BottomTabNavigator} options={{
+        {/* <Stack.Screen name="Root" component={BottomTabNavigator} options={{
           title: 'Home',
           headerShown: true,
           headerLargeTitle: true,
+          headerStyle: {
+            height: 100,
+          },
           headerLargeStyle: {
             backgroundColor: Colors[colorScheme].background,
           },
@@ -85,8 +90,10 @@ function RootNavigator() {
           headerRight: () => (
             <Image source={{ uri: auth.user?.avatar }} style={{ width: 40, height: 40, borderRadius: 20, marginRight: 10 }} />
           ),
-        }} />
-        <Stack.Screen name="NotFound" component={NotFoundScreen} options={{ title: 'Oops!' }} />
+        }} /> */}
+        <Stack.Screen name="Home" component={HomeScreen} />
+        <Stack.Screen name="Profile" component={ProfileScreen} />
+        <Stack.Screen name="NotFound" component={NotFoundScreen} />
         <Stack.Screen name="TopSongs" component={TopSongsScreen} />
         <Stack.Screen name="TopArtists" component={TopArtistsScreen} options={{ title: 'Top Artists', headerLargeTitle: true, headerBlurEffect: 'dark', headerTransparent: true, headerLargeTitleShadowVisible: true }} />
         <Stack.Screen name="Soundcheck" component={SoundcheckScreen} />
@@ -105,56 +112,56 @@ function RootNavigator() {
  * A bottom tab navigator displays tab buttons on the bottom of the display to switch screens.
  * https://reactnavigation.org/docs/bottom-tab-navigator
  */
-const BottomTab = createBottomTabNavigator<RootTabParamList>()
+// const BottomTab = createBottomTabNavigator<RootTabParamList>()
 
-function BottomTabNavigator() {
-  return (
-    <BottomTab.Navigator
-      initialRouteName="TabOne"
-      screenOptions={{
-        tabBarActiveTintColor: 'white',
-        tabBarInactiveTintColor: 'gray',
-        headerShown: false,
-      }}>
-      <BottomTab.Screen
-        name="TabOne"
-        component={TabOneScreen}
-        options={({ navigation }: RootTabScreenProps<'TabOne'>) => ({
-          title: 'Home',
-          tabBarIcon: ({ color }) => <Ionicons name="md-home" size={20} color={color} />,
-          tabBarButton: (props) => (
-            <TouchableOpacity
-              {...props}
-              onPress={() => {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
-                props.onPress()
-              }
-              }
-            />
-          ),
-        })}
-      />
-      <BottomTab.Screen
-        name="TabTwo"
-        component={TabTwoScreen}
-        options={{
-          title: 'Profile',
-          tabBarIcon: ({ color }) => (
-            <Ionicons name="md-person" size={20} color={color} />
-          ),
-          tabBarButton: (props) => (
-            <TouchableOpacity
-              {...props}
-              onPress={() => {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
-                props.onPress()
-              }
-              }
-            />
-          ),
-        }}
+// function BottomTabNavigator() {
+//   return (
+//     <BottomTab.Navigator
+//       initialRouteName="TabOne"
+//       screenOptions={{
+//         tabBarActiveTintColor: 'white',
+//         tabBarInactiveTintColor: 'gray',
+//         headerShown: false,
+//       }}>
+//       <BottomTab.Screen
+//         name="TabOne"
+//         component={TabOneScreen}
+//         options={({ navigation }: RootTabScreenProps<'TabOne'>) => ({
+//           title: 'Home',
+//           tabBarIcon: ({ color }) => <Ionicons name="md-home" size={20} color={color} />,
+//           tabBarButton: (props) => (
+//             <TouchableOpacity
+//               {...props}
+//               onPress={() => {
+//                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+//                 props.onPress()
+//               }
+//               }
+//             />
+//           ),
+//         })}
+//       />
+//       <BottomTab.Screen
+//         name="TabTwo"
+//         component={TabTwoScreen}
+//         options={{
+//           title: 'Profile',
+//           tabBarIcon: ({ color }) => (
+//             <Ionicons name="md-person" size={20} color={color} />
+//           ),
+//           tabBarButton: (props) => (
+//             <TouchableOpacity
+//               {...props}
+//               onPress={() => {
+//                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+//                 props.onPress()
+//               }
+//               }
+//             />
+//           ),
+//         }}
 
-      />
-    </BottomTab.Navigator>
-  )
-}
+//       />
+//     </BottomTab.Navigator>
+//   )
+// }
