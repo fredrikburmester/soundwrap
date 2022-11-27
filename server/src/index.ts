@@ -70,8 +70,8 @@ io.on('connection', (socket) => {
 
 	socket.on(ClientEmits.REQUEST_TO_JOIN_ROOM, ({roomCode, user, token}: {roomCode: string, user: IUser, token: string}) => {
 		if(!roomCode) {
-			socket.emit(ServerEmits.REQUEST_TO_JOIN_ROOM_REJECTED, 'No room code provided. Idk...');
-			socket.emit('error', "This shouldn't happen", 'Restart the app completely');
+			socket.emit(ServerEmits.REQUEST_TO_JOIN_ROOM_REJECTED);
+			socket.emit('error', "You forgot the code", 'No code, no room, no game...');
 			return;
 		}
 
@@ -207,9 +207,15 @@ io.on('connection', (socket) => {
 
 			console.log(`${user.name} guessed ${guess} on ${room.songs[currentSongIndex].player.name} for song ${currentSongIndex} and it was ${correct ? 'correct' : 'incorrect'}`);
 
-			if (currentGuess && currentGuess.guess !== guess) { // Update guess
-				currentGuess.guess = guess;
-				if(!correct) player.score--
+			// If guess already exists AND the new guess differs
+			if (currentGuess && currentGuess.guess !== guess) {
+				// If the old guess was correct, remove a point from the player
+				if(currentGuess.guess === answer && !correct) {
+					player.score--
+				// If the old guess was incorrect, and this guess is correct, add a point to the player
+				} else if (currentGuess.guess !== answer && correct) {
+					player.score++
+				}
 			} else if(currentGuess && currentGuess.guess === guess ) {
 				// Do nothing
 			} else {																				// New guess
