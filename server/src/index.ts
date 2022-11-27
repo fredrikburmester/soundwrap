@@ -60,7 +60,7 @@ const getTopSongsForUser = async (timeRange: string, songsPerUser: number, token
 			player: user,
 		}));
 	} else {
-		errors.push(createErrorString(response.status));
+		errors.push('Try logging in again');
 		return [];
 	}
 };
@@ -97,6 +97,12 @@ io.on('connection', (socket) => {
 		if (room.gamePosition === 0) {
 			// Get top songs for user
 			getTopSongsForUser(room.timeRange, room.songsPerUser, token, user).then((songs) => {
+				if(errors.length > 0) {
+					socket.emit(ServerEmits.REQUEST_TO_JOIN_ROOM_REJECTED);
+					socket.emit('error', 'Error getting top songs', errors.pop());
+					return;
+				}
+
 				if(songs.length === 0) {
 					socket.emit(ServerEmits.REQUEST_TO_JOIN_ROOM_REJECTED);
 					socket.emit('error', 'No top songs', 'Do you even use Spotify?');
