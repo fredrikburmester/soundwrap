@@ -236,9 +236,6 @@ export default function RoomScreen({ route, navigation }: RootStackScreenProps<'
       <FlashList
         contentInsetAdjustmentBehavior="automatic"
         data={players.sort((a, b) => b.score - a.score)}
-        style={{
-          flex: 1,
-        }}
         renderItem={({ item, index }) =>
           <View style={{ marginHorizontal: 20, flexDirection: 'row', alignItems: 'center' }}>
             <Text style={{
