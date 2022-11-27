@@ -71,22 +71,26 @@ io.on('connection', (socket) => {
 	socket.on(ClientEmits.REQUEST_TO_JOIN_ROOM, ({roomCode, user, token}: {roomCode: string, user: IUser, token: string}) => {
 		if(!roomCode) {
 			socket.emit(ServerEmits.REQUEST_TO_JOIN_ROOM_REJECTED, 'No room code provided. Idk...');
+			socket.emit('error', "This shouldn't happen", 'Restart the app completely');
 			return;
 		}
 
 		if(!user) {
-			socket.emit(ServerEmits.REQUEST_TO_JOIN_ROOM_REJECTED, 'No user provided. Log in.');
+			socket.emit(ServerEmits.REQUEST_TO_JOIN_ROOM_REJECTED);
+			socket.emit('error', 'No user provided', 'Try logging in again');
 			return;
 		}
 
 		if(!token) {
-			socket.emit(ServerEmits.REQUEST_TO_JOIN_ROOM_REJECTED, 'No token provided. Try logging in again.');
+			socket.emit(ServerEmits.REQUEST_TO_JOIN_ROOM_REJECTED);
+			socket.emit('error', 'No token provided', 'Try logging in again');
 			return;
 		}
 
 		const room = rooms.find((room) => room.roomCode === roomCode);
 		if (!room) {
-			socket.emit(ServerEmits.REQUEST_TO_JOIN_ROOM_REJECTED, 'Hmm.. That room doesn\'t exist');
+			socket.emit(ServerEmits.REQUEST_TO_JOIN_ROOM_REJECTED);
+			socket.emit('error', 'No such room', 'Try another room or create one');
 			return;
 		}
 
@@ -94,7 +98,8 @@ io.on('connection', (socket) => {
 			// Get top songs for user
 			getTopSongsForUser(room.timeRange, room.songsPerUser, token, user).then((songs) => {
 				if(songs.length === 0) {
-					socket.emit(ServerEmits.REQUEST_TO_JOIN_ROOM_REJECTED, 'Missing top songs');
+					socket.emit(ServerEmits.REQUEST_TO_JOIN_ROOM_REJECTED);
+					socket.emit('error', 'No top songs', 'Do you even use Spotify?');
 					return;
 				}
 
@@ -126,6 +131,7 @@ io.on('connection', (socket) => {
 	socket.on(ClientEmits.REQUEST_TO_CREATE_ROOM, ({roomCode, user, timeRange, songsPerUser, token}: {roomCode: string, user: IUser, timeRange: string, songsPerUser: number, token: string}) => {
 		if (!roomCode || !user || !timeRange || !songsPerUser || !token) {
 			socket.emit(ServerEmits.REQUEST_TO_CREATE_ROOM_REJECTED, "You're missing some information");
+			socket.emit('error', 'Missing information', 'Please restart the app and try again');
 			return;
 		}
 
@@ -134,12 +140,15 @@ io.on('connection', (socket) => {
 			// Get user top songs
 			getTopSongsForUser(timeRange, songsPerUser, token, user).then((songs) => {
 
-				if(errors.length != 0) {
-					socket.emit(ServerEmits.REQUEST_TO_CREATE_ROOM_REJECTED, errors.pop());
+				if(errors.length !== 0) {
+					socket.emit(ServerEmits.REQUEST_TO_CREATE_ROOM_REJECTED);
+					socket.emit('error', "Error", errors.pop())
 					return;
 				}
+
 				if(songs.length === 0) {
-					socket.emit(ServerEmits.REQUEST_TO_CREATE_ROOM_REJECTED, ' You don\'t have any top songs');
+					socket.emit(ServerEmits.REQUEST_TO_CREATE_ROOM_REJECTED);
+					socket.emit('error', 'No top songs', 'Logging in and out again might help');
 					return;
 				}
 				// Create room
@@ -159,6 +168,7 @@ io.on('connection', (socket) => {
 			}).catch((err) => {
 				console.log("error!!",{err});
 				socket.emit(ServerEmits.REQUEST_TO_CREATE_ROOM_REJECTED);
+				socket.emit('error', 'Something went wrong', 'Plase log in and out again');
 			});
 		} else {
 			// if user in room, join room
@@ -166,7 +176,8 @@ io.on('connection', (socket) => {
 				socket.emit(ServerEmits.REQUEST_TO_CREATE_ROOM_ACCEPTED, room);
 				return;
 			}
-			socket.emit(ServerEmits.REQUEST_TO_CREATE_ROOM_REJECTED, 'Hmm.. That room already exists');
+			socket.emit(ServerEmits.REQUEST_TO_CREATE_ROOM_REJECTED);
+			socket.emit('error', 'Room already exists', 'Use another code');
 		}
 	})
 
@@ -206,6 +217,14 @@ io.on('connection', (socket) => {
 				if(correct) player.score++
 			}
 		}
+	})
+	
+	socket.on('requestRoomUpdate', (roomCode: string) => {
+		const room = rooms.find((room) => room.roomCode === roomCode);
+		if (!room) {
+			return;
+		}
+		sendRoomUpdates(roomCode);
 	})
 
 	socket.on(ClientEmits.LEAVE_ROOM, ({roomCode, user}: {roomCode: string, user: IUser}) => {
