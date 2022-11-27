@@ -1,0 +1,10 @@
+{
+	"apps": [
+		{
+			"name": "sc-ts-ws-backend",
+			"script": "npm run start",
+			"env": {
+			}
+		},
+	]
+}
