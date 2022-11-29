@@ -1,5 +1,5 @@
 import { useContext } from "react"
-import { SongItem, SpotifyMeResult, SpotifyMyPlaylistsResult, SpotifyTopArtistsResult,SpotifyTopTracksResult } from "../types/spotify"
+import { SongItem, SpotifyMeResult, SpotifyMyPlaylistsResult, SpotifySearchResponse, SpotifyTopArtistsResult,SpotifyTopTracksResult, Tracks2 } from "../types/spotify"
 import { AuthContext } from "../context/authContext"
 import { AuthContextType } from "../types/auth"
 
@@ -87,7 +87,18 @@ export const addSongsToPlaylist = async (token: string, playlistId: string, song
 }
 
 export const createAndAddSongsToPlaylist = async (token: string, name: string, songs: SongItem[]) => {
+  console.log(token, name, songs);
   const songIds = songs.map((song) => song.uri);
   const { id } = await createPlaylist(token, name);
   await addSongsToPlaylist(token, id, songIds);
+}
+
+export const searchForTracks = async (token: string, query: string, limit = 50) => {
+  const response = await fetch(`https://api.spotify.com/v1/search?q=${query}&type=track&limit=${limit}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return response.json() as Promise<SpotifySearchResponse>;
 }

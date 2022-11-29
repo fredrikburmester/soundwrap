@@ -7,21 +7,23 @@ interface Props {
   title: string
   onPress: () => void
   color?: string
+  size?: 'sm' | 'lg'
+  style?: any
 }
 
-export const ButtonComponent: React.FC<Props> = ({ title, onPress, color, }) => {
+export const ButtonComponent: React.FC<Props> = ({ title, onPress, color, size, style }) => {
 
   return (
     <TouchableOpacity
-      style={{
+      style={[{
         backgroundColor: color ? color : Colors.primary,
-        padding: 10,
+        padding: size === 'sm' ? 5 : 10,
         borderRadius: 10,
         width: '100%',
-        height: 45,
+        height: size === 'sm' ? 35 : 45,
         alignItems: 'center',
         justifyContent: 'center',
-      }}
+      }, style]}
       onPress={() => onPress()}
     >
       <Text style={{ color: 'white', fontSize: 16 }}>{title}</Text>

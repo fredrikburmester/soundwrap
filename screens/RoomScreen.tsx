@@ -1,11 +1,11 @@
 import React, { useContext, useEffect, useRef, useState } from 'react'
 import { StyleSheet, Image, FlatList, TouchableOpacity, ScrollView, TextInput, Switch, Button, Alert, Pressable, TouchableHighlight, RefreshControl } from 'react-native'
-import { AuthContextType, IAuth, IUser } from '../types/auth'
+import { AuthContextType, IAuth, IUser, NonAuthUser } from '../types/auth'
 import EditScreenInfo from '../components/EditScreenInfo'
 import { Text, View } from '../components/Themed'
 import { AuthContext } from '../context/authContext'
 import { RootStackParamList, RootStackScreenProps } from '../types'
-import { getMe, getTopSongs } from '../api/spotify'
+import { addSongsToPlaylist, createAndAddSongsToPlaylist, getMe, getTopSongs } from '../api/spotify'
 import { io } from "socket.io-client"
 import { Card } from '../components/Card'
 import Colors from '../constants/Colors'
@@ -43,6 +43,7 @@ export default function RoomScreen({ route, navigation }: RootStackScreenProps<'
   const [currentSongIndex, setCurrentSongIndex] = useState<number>(0)
   const [gamePosition, setGamePosition] = useState(0)
   const [guess, setGuess] = useState('')
+  const [nonAuthUsers, setNonAuthUsers] = useState<NonAuthUser[]>([])
 
   const { auth, logout } = useContext(AuthContext) as AuthContextType
   const connectedRef = useRef(connected)
@@ -77,6 +78,47 @@ export default function RoomScreen({ route, navigation }: RootStackScreenProps<'
       { text: 'Leave', onPress: () => leaveRoom() },
     ])
   }
+
+  const openSaveSongsAlert = () => {
+    Alert.alert('Save Songs To Playlist', 'Do you want to save the songs in this game to a playlist in your Spotify account?', [
+      {
+        text: 'Cancel',
+        onPress: () => console.log('Cancel Pressed'),
+        style: 'cancel',
+      },
+      { text: 'Save', onPress: saveSongs },
+    ])
+  }
+
+  const saveSongs = () => {
+    const newPlaylistName = `Soundcheck - ${roomCode}`
+    createAndAddSongsToPlaylist(auth.token, newPlaylistName, songs.map((song: any) => song.song))
+  }
+
+  const generateRandomId = () => {
+    return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
+  }
+
+  useEffect(() => {
+    if (route.params?.nonAuthUser) {
+      console.log('nonAuthUsers', nonAuthUsers)
+      setNonAuthUsers([...nonAuthUsers, route.params.nonAuthUser])
+      console.log('nonAuthUsers', nonAuthUsers)
+
+      // convert non-auth user to user for merging with players
+      const newUser: IUser = {
+        id: generateRandomId(),
+        name: route.params.nonAuthUser.name,
+        avatar: 'https://picsum.photos/200',
+        score: 0,
+        guesses: []
+      }
+
+      socket.emit('addNonAuthUser', { roomCode: roomCode, nonAuthUser: newUser, songs: route.params.nonAuthUser.songs })
+
+      setPlayers([...players, newUser])
+    }
+  }, [route.params?.nonAuthUser])
 
   useEffect(() => {
     if (createRoom) {
@@ -133,7 +175,9 @@ export default function RoomScreen({ route, navigation }: RootStackScreenProps<'
 
       console.log("[update]", room)
     })
+  }, [])
 
+  useEffect(() => {
     navigation.setOptions({
       title: ``,
       headerBackTitleVisible: true,
@@ -148,11 +192,12 @@ export default function RoomScreen({ route, navigation }: RootStackScreenProps<'
       // headerTransparent: true,
       headerRight: () => (
         <>
-          {gamePositionRef.current === 0 && <Ionicons name="close" size={24} color="red" style={{ marginRight: 20 }} onPress={() => openLeaveRoomAlert()} />}
+          {gamePositionRef.current === 0 && <Ionicons name="close" size={24} color="red" style={{ marginRight: 0 }} onPress={() => openLeaveRoomAlert()} />}
+          {gamePositionRef.current === 2 && <Ionicons name="add" size={24} color="white" style={{ marginRight: 0 }} onPress={() => openSaveSongsAlert()} />}
         </>
       ),
     })
-  }, [])
+  }, [gamePositionRef.current])
 
   if (!auth.user) {
     navigation.navigate('Home')
@@ -162,6 +207,18 @@ export default function RoomScreen({ route, navigation }: RootStackScreenProps<'
   const onRefresh = () => {
     socket.connect()
     socket.emit('requestRoomUpdate', { roomCode: roomCode })
+  }
+
+  const openModal = () => {
+    navigation.navigate('AddNonAuthPlayerModal')
+  }
+
+  const addNonAuthPlayer = () => {
+    openModal()
+  }
+
+  const openGuessDetailModal = (user: IUser) => {
+    navigation.navigate('PlayerGuessDetails', { user: user, songs: songs })
   }
 
   if (gamePosition === 0) {
@@ -186,6 +243,9 @@ export default function RoomScreen({ route, navigation }: RootStackScreenProps<'
             color: Colors.primary,
           }}>{roomCode}</Text>
           <Text style={{ fontStyle: 'italic' }}>Invite others to play! While wating, write something in the chat! <Text style={{ color: Colors.primary }}>Who's gonna win?</Text></Text>
+          {/* <View style={{ marginTop: 10, opacity: 1 }}>
+            <ButtonComponent size='sm' title="Add non-spotify player" onPress={addNonAuthPlayer} style={{ width: 200, backgroundColor: Colors.backgroundDark }} />
+          </View> */}
         </View>}
         ListFooterComponent={() =>
           <>
@@ -237,14 +297,16 @@ export default function RoomScreen({ route, navigation }: RootStackScreenProps<'
         contentInsetAdjustmentBehavior="automatic"
         data={players.sort((a, b) => b.score - a.score)}
         renderItem={({ item, index }) =>
-          <View style={{ marginHorizontal: 20, flexDirection: 'row', alignItems: 'center' }}>
+          <View style={{ marginHorizontal: 20, flexDirection: 'row', alignItems: 'center' }} key={index}>
             <Text style={{
               fontSize: 48,
               fontWeight: 'bold',
               color: Colors.primary,
               marginRight: 20,
             }}>{index + 1}</Text>
-            <UserCard avatar={item.avatar} name={item.name} style={{ flex: 1 }} text={`Score: ${item.score} of ${currentSongIndex + 1}`} />
+            <TouchableOpacity style={{ flex: 1 }} onPress={() => openGuessDetailModal(item)}>
+              <UserCard avatar={item.avatar} name={item.name} style={{ flex: 1 }} text={`Score: ${item.score} of ${currentSongIndex + 1}`} />
+            </TouchableOpacity>
           </View>
         }
         ItemSeparatorComponent={() => <View style={{ height: 10 }} />}

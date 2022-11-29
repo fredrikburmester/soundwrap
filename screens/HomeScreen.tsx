@@ -16,7 +16,6 @@ import { useHeaderHeight } from '@react-navigation/elements'
 import { RootStackScreenProps } from '../types'
 import { HeaderComponent } from '../components/HeaderComponent'
 
-
 export default function HomeScreen({ navigation }: RootStackScreenProps<'Home'>) {
   const colorScheme = useColorScheme()
   const { auth } = useContext(AuthContext) as AuthContextType
@@ -83,7 +82,7 @@ export default function HomeScreen({ navigation }: RootStackScreenProps<'Home'>)
       <Card title="Soundcheck" style={{ backgroundColor: Colors.primary, shadowColor: Colors.primaryLight, shadowRadius: 5, shadowOpacity: 1, shadowOffset: { width: 0, height: 1 } }} description="Play the game!" onPress={() => navigation.navigate('Soundcheck')} />
       <View style={{ marginVertical: 20, backgroundColor: 'white', opacity: 0.1, height: 1 }}></View>
       {cards.map(card => (
-        <Card title={card.title} description={card.description} onPress={card.onPress} key={card.id} style={{ marginBottom: 20, backgroundColor: Colors.secondary, height: 100 }} />
+        <Card title={card.title} description={card.description} onPress={card.onPress} key={card.id} style={{ marginBottom: 20, backgroundColor: Colors.secondary, height: 70 }} />
       ))}
     </ScrollView>
 

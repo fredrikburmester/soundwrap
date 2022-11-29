@@ -1,7 +1,10 @@
 // // @ts-nocheck
 import { io } from "socket.io-client";
 
-const socket = io("https://soundcheckgame-ts-ws-backend.fdrive.se", {
+const url = "https://soundcheckgame-ts-ws-backend.fdrive.se"
+const devurl = "http://localhost:5000"
+
+const socket = io(devurl, {
   path: '/ws',
   autoConnect: true,
   transports: ['websocket'],

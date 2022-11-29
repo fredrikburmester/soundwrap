@@ -23,3 +23,8 @@ export type AuthContextType = {
   logout: () => void;
   isAuthenticated: () => Promise<boolean>;
 };
+
+export type NonAuthUser = {
+  name: string;
+  songs: Item[];
+}

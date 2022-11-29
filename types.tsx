@@ -6,6 +6,8 @@
 import { BottomTabScreenProps } from '@react-navigation/bottom-tabs'
 import { CompositeScreenProps, NavigatorScreenParams } from '@react-navigation/native'
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
+import { IUser, NonAuthUser } from './types/auth'
+import { SongItem } from './types/spotify'
 
 declare global {
   namespace ReactNavigation {
@@ -25,7 +27,10 @@ export type RootStackParamList = {
   Join: undefined
   Home: undefined
   Profile: undefined
-  Room: { roomCode: string, songsPerUser: number | undefined, timeRange: string | undefined, createRoom: boolean }
+  Search: undefined
+  AddNonAuthPlayerModal: undefined
+  PlayerGuessDetails: { user: IUser, songs: {song: SongItem, player: IUser}[]} 
+  Room: { roomCode: string, songsPerUser: number | undefined, timeRange: string | undefined, createRoom: boolean, nonAuthUser: NonAuthUser }
 }
 
 export type RootStackScreenProps<Screen extends keyof RootStackParamList> = NativeStackScreenProps<

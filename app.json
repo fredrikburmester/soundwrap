@@ -2,10 +2,10 @@
   "expo": {
     "name": "soundcheck",
     "slug": "soundcheck",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "myapp",
+    "scheme": "soundcheck",
     "userInterfaceStyle": "automatic",
     "splash": {
       "image": "./assets/images/splash.png",
@@ -20,13 +20,15 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.fredrikburmester.soundcheck"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#1F1F1E"
-      }
+      },
+      "package": "com.fredrikburmester.soundcheck"
     },
     "web": {
       "favicon": "./assets/images/favicon.png"

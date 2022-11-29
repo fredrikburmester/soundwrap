@@ -9,7 +9,7 @@ import SegmentedControl from '@react-native-segmented-control/segmented-control'
 import { SongItem, SpotifyTopTracksResult } from '../types/spotify'
 import Ionicons from '@expo/vector-icons/Ionicons'
 import * as Haptics from 'expo-haptics'
-
+import { SafeAreaView } from 'react-native-safe-area-context'
 
 enum TimeRange {
   SHORT = 'short_term',
@@ -29,9 +29,17 @@ const SongCard = ({ song, index }: { song: SongItem, index: number }) => (
   </View>
 )
 
+interface ICachedSongs {
+  [key: string]: SongItem[]
+}
+
 export default function TopSongsScreen({ navigation }: any) {
   const { logout, auth } = useContext(AuthContext) as AuthContextType
   const [songs, setSongs] = useState<SongItem[]>([])
+  // const [songsShortTerm, setSongsShortTerm] = useState<SongItem[]>([])
+  // const [songsMediumTerm, setSongsMediumTerm] = useState<SongItem[]>([])
+  // const [songsLongTerm, setSongsLongTerm] = useState<SongItem[]>([])
+  const [cachedSongs, setCachedSongs] = useState<ICachedSongs>({'short_term': [], 'medium_term': [], 'long_term': []})
   const [loading, setLoading] = useState(true)
   const [loadingMore, setLoadingMore] = useState(false)
   const [timeRange, setTimeRange] = useState('short_term')
@@ -40,6 +48,9 @@ export default function TopSongsScreen({ navigation }: any) {
   const newPlaylistName = '⭐️ Top songs ' + timeRange.split('_').join(' ') + ' ⭐️ ' + new Date().toLocaleDateString()
   const stateRef = useRef<SongItem[]>([])
   stateRef.current = songs
+  
+  const timeRangeRef = useRef<string>('')
+  timeRangeRef.current = timeRange
 
   const createTwoButtonAlert = () => {
     Alert.alert('Save as playlist', 'Do you want to save your top songs to a playlist in your Spotify account?', [
@@ -80,9 +91,11 @@ export default function TopSongsScreen({ navigation }: any) {
   useEffect(() => {
     setLoading(true)
     fadeAnim.setValue(0)
+   
     getTopSongs(auth.token, timeRange).then((res: SpotifyTopTracksResult) => {
       if (res && res.items) {
         setSongs(res.items)
+        // setCachedSongs({...cachedSongs, [timeRange]: res.items})
         setLoading(false)
       } else {
         console.log("error", res)
@@ -118,9 +131,9 @@ export default function TopSongsScreen({ navigation }: any) {
           style={{ margin: 20, marginTop: 20 }}
         />}
       refreshing={loading}
-      renderItem={({ item, index }) => (
+      renderItem={({item, index}) => (
         <>
-          {!loading &&
+          {
             <Animated.View
               style={{
                 opacity: fadeAnim,
@@ -135,12 +148,39 @@ export default function TopSongsScreen({ navigation }: any) {
       )}
       ListFooterComponent={
         <>
-          {songs.length === 0 && !loading && <Text style={{ textAlign: 'center', marginTop: 20 }}>You have no top songs for this time period!</Text>}
+          {cachedSongs[timeRange].length === 0 && !loading && <Text style={{ textAlign: 'center', marginTop: 20 }}>You have no top songs for this time period!</Text>}
           {loading || loadingMore && <ActivityIndicator size="small" color="white" style={{ marginTop: 20 }} />}
         </>
       }
       onEndReached={() => getMoreSongs()}
     />
+      // <ScrollView>
+      //   <>
+      //     {/* <SegmentedControl
+      //       values={['Month', 'Half year', 'All time']}
+      //       selectedIndex={selectedSegment}
+      //       onChange={(event) => {
+      //         changeTimeRange(event.nativeEvent.selectedSegmentIndex)
+      //       }}
+      //       tintColor="#fefefe"
+      //       appearance="light"
+      //       style={{ margin: 20, marginTop: 200 }}
+      //     /> */}
+      //     {cachedSongs[timeRange].map((item: SongItem, index: number) => {
+      //         <Animated.View
+      //         style={{
+      //           opacity: fadeAnim,
+      //         }}
+      //         key={index}
+      //         >
+      //           <View style={{ marginBottom: 20 }}>
+      //             <SongCard song={item} index={index} />
+      //           </View>
+      //         </Animated.View>
+      //       })
+      //     }
+      //   </>
+      // </ScrollView>
   )
 }
 

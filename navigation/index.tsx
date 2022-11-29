@@ -31,6 +31,9 @@ import JoinRoomScreen from '../screens/JoinRoomScreen'
 import RoomScreen from '../screens/RoomScreen'
 import HomeScreen from '../screens/HomeScreen'
 import ProfileScreen from '../screens/ProfileScreen'
+import SearchScreen from '../screens/SeachScreen'
+import AddNonAuthPlayerModal from '../components/AddNonAuthPlayerModal'
+import PlayerGuessDetailsComponent from '../components/PlayerGuessDetailsComponent'
 
 
 type Props = {
@@ -100,9 +103,13 @@ function RootNavigator() {
         <Stack.Screen name="Create" component={CreateRoomScreen} />
         <Stack.Screen name="Join" component={JoinRoomScreen} />
         <Stack.Screen name="Room" component={RoomScreen} />
-        {/* <Stack.Group screenOptions={{ presentation: 'modal' }}>
-          <Stack.Screen name="AddPlaylistModal" options={{ title: 'Add playlist' }} component={AddPlaylistModal} />
-        </Stack.Group> */}
+        <Stack.Screen name="Search" component={SearchScreen} />
+        <Stack.Group screenOptions={{ presentation: 'modal' }}>
+          <Stack.Screen name="AddNonAuthPlayerModal" options={{ title: 'Add a player' }} component={AddNonAuthPlayerModal} />
+        </Stack.Group>
+        <Stack.Group screenOptions={{ presentation: 'modal' }}>
+          <Stack.Screen name="PlayerGuessDetails" component={PlayerGuessDetailsComponent} />
+        </Stack.Group>
       </Stack.Navigator>
     )
   }

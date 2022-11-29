@@ -156,3 +156,37 @@ export interface Tracks {
   href: string
   total: number
 }
+
+export interface SpotifySearchResponse {
+  tracks: Tracks2
+}
+
+export interface Tracks2 {
+  href: string
+  items: Item[]
+  limit: number
+  next: string
+  offset: number
+  previous: any
+  total: number
+}
+
+export interface Item {
+  album: Album
+  artists: Artist2[]
+  available_markets: string[]
+  disc_number: number
+  duration_ms: number
+  explicit: boolean
+  external_ids: ExternalIds
+  external_urls: ExternalUrls4
+  href: string
+  id: string
+  is_local: boolean
+  name: string
+  popularity: number
+  preview_url: string
+  track_number: number
+  type: string
+  uri: string
+}

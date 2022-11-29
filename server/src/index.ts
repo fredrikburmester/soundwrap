@@ -134,6 +134,23 @@ io.on('connection', (socket) => {
 		}
 	})
 
+	socket.on('addNonAuthUser', ({roomCode, nonAuthUser, songs}: {roomCode: string, nonAuthUser: IUser, songs: SongItem[]}) => {
+		const room = rooms.find((room) => room.roomCode === roomCode);
+		if (!room) {
+			return;
+		}
+
+		const nonAuthUserSongs = songs.map((song) => ({
+			song,
+			player: nonAuthUser,
+		}));
+
+		room.players = [...room.players, nonAuthUser];
+		room.songs = [...room.songs, ...nonAuthUserSongs];
+
+		sendRoomUpdates(roomCode);
+	})
+
 	socket.on(ClientEmits.REQUEST_TO_CREATE_ROOM, ({roomCode, user, timeRange, songsPerUser, token}: {roomCode: string, user: IUser, timeRange: string, songsPerUser: number, token: string}) => {
 		if (!roomCode || !user || !timeRange || !songsPerUser || !token) {
 			socket.emit(ServerEmits.REQUEST_TO_CREATE_ROOM_REJECTED, "You're missing some information");
@@ -232,7 +249,7 @@ io.on('connection', (socket) => {
 			}
 		}
 	})
-	
+
 	socket.on('requestRoomUpdate', (roomCode: string) => {
 		const room = rooms.find((room) => room.roomCode === roomCode);
 		if (!room) {
@@ -287,7 +304,6 @@ io.on('connection', (socket) => {
 			sendRoomUpdates(roomCode)
 		}
 	})
-
 
   socket.on(ClientEmits.DISCONNECT, () => {
     console.log('disconnected')
