@@ -46,7 +46,7 @@ export default function PlayerGuessDetailsComponent({ navigation, route }: RootS
       <ScrollView>
         {songs.map((song, index) => {
           return (
-            <View style={{flexDirection: 'row'}}>
+            <View style={{flexDirection: 'row'}} key={index}>
               <Text style={{fontSize: 40, color: Colors.primary, marginRight: 20}}>{index + 1 }</Text>
               <ImageBackground key={index} source={{ uri: song.song.album.images[0].url }} imageStyle={{ borderRadius: 10, opacity: 0.3 }} style={{ width: '93%', marginVertical: 10, borderRadius: 10, overflow: 'hidden' }}>
                 <View key={index} style={{ marginVertical: 10, backgroundColor: 'transparent', paddingVertical: 10, paddingHorizontal: 20 }}>
