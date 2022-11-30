@@ -25,6 +25,16 @@ export const getMe = async (token: string) => {
   return response.json() as Promise<SpotifyMeResult>;
 }
 
+export const getTokenStatus = async (token: string) => {
+  const response = await fetch("https://api.spotify.com/v1/me", {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return response.status;
+}
+
 export const getTopSongs = async (token: string, timeRange: string, offset = 0, limit = 25) => {
   const response = await fetch(`https://api.spotify.com/v1/me/top/tracks?time_range=${timeRange}&offset=${offset}&limit=${limit}`, {
     headers: {

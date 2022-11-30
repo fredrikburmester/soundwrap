@@ -1,7 +1,7 @@
 import { createContext, useEffect, useState } from 'react'
 import { AuthContextType, IAuth, IUser } from '../types/auth'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import { getMe } from '../api/spotify'
+import { getMe, getTokenStatus } from '../api/spotify'
 
 interface Props {
   children: React.ReactNode
@@ -23,11 +23,22 @@ const AuthProvider: React.FC<Props> = ({ children }) => {
     if (jsonValue) {
       const authObject = JSON.parse(jsonValue) as IAuth
       if (authObject) {
-        setAuth({
-          authenticated: authObject.authenticated,
-          token: authObject.token,
-          user: authObject.user,
-        })
+
+        const tokenStatus = await getTokenStatus(authObject.token)
+
+        if (tokenStatus == 200) {
+          setAuth({
+            authenticated: true,
+            token: authObject.token,
+            user: authObject.user,
+          })
+        } else {
+          setAuth({
+            authenticated: false,
+            token: '',
+            user: null,
+          })
+        }
       }
     }
     return auth.authenticated
