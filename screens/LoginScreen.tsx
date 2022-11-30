@@ -67,7 +67,7 @@ export default function LoginScreen({ navigation }: RootStackScreenProps<'Login'
       {!loading && <TouchableOpacity style={{ padding: 12, backgroundColor: Colors.primary, borderRadius: 10, marginHorizontal: 18, width: '100%', justifyContent: 'center', alignItems: 'center', marginTop: 'auto', height: 48 }} onPress={requestTokenAndLogin}>
         <Text style={{ fontWeight: 'bold' }}>Login</Text>
       </TouchableOpacity>}
-      {loading && <TouchableOpacity style={{ padding: 12, backgroundColor: Colors.primary, opacity: 0.1, borderRadius: 10, marginHorizontal: 18, width: '100%', justifyContent: 'center', alignItems: 'center', marginTop: 'auto', height: 48 }} onPress={requestTokenAndLogin}>
+      {loading && <TouchableOpacity style={{ padding: 12, backgroundColor: Colors.primary, opacity: 0.5, borderRadius: 10, marginHorizontal: 18, width: '100%', justifyContent: 'center', alignItems: 'center', marginTop: 'auto', height: 48 }} onPress={requestTokenAndLogin}>
         <ActivityIndicator size="small" color="white" />
       </TouchableOpacity>}
     </SafeAreaView>
