@@ -1,8 +1,6 @@
 import { StatusBar } from 'expo-status-bar'
-import React, { useContext, useEffect, useRef, useState } from 'react'
+import React, { useEffect } from 'react'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
-import { AuthContextType } from './types/auth'
-import { AuthContext } from './context/authContext'
 
 import useCachedResources from './hooks/useCachedResources'
 import useColorScheme from './hooks/useColorScheme'
@@ -11,7 +9,6 @@ import AuthProvider from './context/authContext'
 import Toast, { BaseToast, ErrorToast } from 'react-native-toast-message'
 
 import socket from './utils/socket'
-import { View, Text } from 'react-native'
 import Colors from './constants/Colors'
 
 export default function App() {
