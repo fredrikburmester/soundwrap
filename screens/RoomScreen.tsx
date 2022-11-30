@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useRef, useState } from 'react'
-import { StyleSheet, Image, FlatList, TouchableOpacity, ScrollView, TextInput, Switch, Button, Alert, Pressable, TouchableHighlight, RefreshControl } from 'react-native'
-import { AuthContextType, IAuth, IUser, NonAuthUser } from '../types/auth'
+import { StyleSheet, Image, FlatList, TouchableOpacity, ScrollView, TextInput, Switch, Button, Alert, Pressable, TouchableHighlight, RefreshControl, ActivityIndicator } from 'react-native'
+import { AuthContextType, IAuth, IGuess, IUser, NonAuthUser } from '../types/auth'
 import EditScreenInfo from '../components/EditScreenInfo'
 import { Text, View } from '../components/Themed'
 import { AuthContext } from '../context/authContext'
@@ -33,6 +33,7 @@ export default function RoomScreen({ route, navigation }: RootStackScreenProps<'
   const createRoom = route.params.createRoom as boolean
 
   const colorScheme = useColorScheme()
+  const [loading, setLoading] = useState(false)
   const [songsPerUser, setSongsPerUser] = useState(route.params.songsPerUser)
   const [roomCode, setRoomCode] = useState(route.params.roomCode)
   const [timeRange, setTimeRange] = useState(route.params.timeRange)
@@ -44,8 +45,10 @@ export default function RoomScreen({ route, navigation }: RootStackScreenProps<'
   const [gamePosition, setGamePosition] = useState(0)
   const [guess, setGuess] = useState('')
   const [nonAuthUsers, setNonAuthUsers] = useState<NonAuthUser[]>([])
+  const [playersWhoGuessed, setPlayersWhoGuessed] = useState<IUser[]>([])
 
-  const { auth, logout } = useContext(AuthContext) as AuthContextType
+  const { auth } = useContext(AuthContext) as AuthContextType
+
   const connectedRef = useRef(connected)
   connectedRef.current = connected
 
@@ -57,6 +60,11 @@ export default function RoomScreen({ route, navigation }: RootStackScreenProps<'
 
   const guessRef = useRef(guess)
   guessRef.current = guess
+
+  if (!auth.user) {
+    navigation.navigate('Home')
+    return null
+  }
 
   const guessOnPress = (newGuess: string) => {
     setGuess(newGuess)
@@ -101,9 +109,7 @@ export default function RoomScreen({ route, navigation }: RootStackScreenProps<'
 
   useEffect(() => {
     if (route.params?.nonAuthUser) {
-      console.log('nonAuthUsers', nonAuthUsers)
       setNonAuthUsers([...nonAuthUsers, route.params.nonAuthUser])
-      console.log('nonAuthUsers', nonAuthUsers)
 
       // convert non-auth user to user for merging with players
       const newUser: IUser = {
@@ -166,15 +172,16 @@ export default function RoomScreen({ route, navigation }: RootStackScreenProps<'
       setGamePosition(room.gamePosition)
       setSongs(room.songs)
       setIsHost(room.host.id === auth.user?.id)
+      setGuess(room.players.filter(p => p.id === auth.user?.id)[0].guesses.filter((g: IGuess) => g.currentSongIndex === room.currentSongIndex)[0]?.guess || '')
 
-      if (room.currentSongIndex !== currentSongIndex || room.gamePosition !== gamePosition) {
+      if (room.currentSongIndex !== currentSongIndex) {
+        setLoading(false)
         setGuess('')
+        setPlayersWhoGuessed([])
+        setCurrentSongIndex(room.currentSongIndex)
       }
-
-      setCurrentSongIndex(room.currentSongIndex)
-
-      console.log("[update]", room)
     })
+
   }, [])
 
   useEffect(() => {
@@ -199,11 +206,6 @@ export default function RoomScreen({ route, navigation }: RootStackScreenProps<'
     })
   }, [gamePositionRef.current])
 
-  if (!auth.user) {
-    navigation.navigate('Home')
-    return null
-  }
-
   const onRefresh = () => {
     socket.connect()
     socket.emit('requestRoomUpdate', { roomCode: roomCode })
@@ -213,12 +215,13 @@ export default function RoomScreen({ route, navigation }: RootStackScreenProps<'
     navigation.navigate('AddNonAuthPlayerModal')
   }
 
-  const addNonAuthPlayer = () => {
-    openModal()
-  }
-
   const openGuessDetailModal = (user: IUser) => {
     navigation.navigate('PlayerGuessDetails', { user: user, songs: songs })
+  }
+
+  const nextSong = () => {
+    setLoading(true)
+    socket.emit('nextSong', { roomCode: roomCode })
   }
 
   if (gamePosition === 0) {
@@ -278,16 +281,21 @@ export default function RoomScreen({ route, navigation }: RootStackScreenProps<'
         </View>
         {players.map((item) =>
           <TouchableHighlight style={{ marginHorizontal: 20, marginBottom: 10 }} onPress={() => guessOnPress(item.id)} key={item.id}>
-            <View style={guess === item.id ? { borderRadius: 10, shadowColor: Colors.primary, shadowRadius: 7, shadowOpacity: 1, elevation: 24 } : {}}>
-              <UserCard avatar={item.avatar} name={item.name} />
+            <View style={guess == item.id ? { borderRadius: 10, shadowColor: Colors.primary, shadowRadius: 7, shadowOpacity: 1, elevation: 24 } : {}}>
+              <UserCard avatar={item.avatar} name={item.name} description={item.guesses.some(guess => guess.currentSongIndex == currentSongIndex) ? 'Guessed' : ''} />
             </View>
           </TouchableHighlight>
         )}
         <View style={{ height: 90, marginTop: 0 }}>
           <SpotifyPlayer songUri={songs[currentSongIndex].song.uri} />
         </View>
-        {isHost && <View style={{ marginHorizontal: 20, marginVertical: 20 }}>
-          <ButtonComponent title="Next song" onPress={() => socket.emit('nextSong', { roomCode })} />
+        {isHost && !loading && <View style={{ marginHorizontal: 20, marginVertical: 20 }}>
+          <ButtonComponent title="Next song" onPress={nextSong} />
+        </View>}
+        {isHost && loading && <View style={{ marginHorizontal: 20, marginVertical: 20, opacity: 0.5 }}>
+          <ButtonComponent onPress={nextSong}>
+            <ActivityIndicator size="small" color="white" />
+          </ButtonComponent>
         </View>}
       </ScrollView>
     )
@@ -305,7 +313,7 @@ export default function RoomScreen({ route, navigation }: RootStackScreenProps<'
               marginRight: 20,
             }}>{index + 1}</Text>
             <TouchableOpacity style={{ flex: 1 }} onPress={() => openGuessDetailModal(item)}>
-              <UserCard avatar={item.avatar} name={item.name} style={{ flex: 1 }} text={`Score: ${item.score} of ${currentSongIndex + 1}`} />
+              <UserCard avatar={item.avatar} name={item.name} style={{ flex: 1 }} description={`Score: ${item.score} of ${currentSongIndex + 1}`} />
             </TouchableOpacity>
           </View>
         }
@@ -336,10 +344,10 @@ interface IUserCard {
   avatar: string
   name: string
   style?: any
-  text?: string
+  description?: string
 }
 
-const UserCard = ({ avatar, name, style, text }: IUserCard) => {
+const UserCard = ({ avatar, name, style, description }: IUserCard) => {
   const localStyles = { flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.backgroundDark, padding: 20, borderRadius: 10, height: 80 }
   const allStyles = [localStyles, style]
 
@@ -348,7 +356,7 @@ const UserCard = ({ avatar, name, style, text }: IUserCard) => {
       <Image source={{ uri: avatar }} style={{ width: 50, height: 50, borderRadius: 25 }} />
       <View style={{ backgroundColor: 'transparent' }}>
         <Text style={{ fontSize: 17, marginLeft: 20 }}>{name}</Text>
-        {text && <Text style={{ fontSize: 12, marginLeft: 20 }}>{text}</Text>}
+        {description && <Text style={{ fontSize: 12, marginLeft: 20, opacity: 0.6, color: Colors.primary }}>{description}</Text>}
       </View>
     </View>
   )
