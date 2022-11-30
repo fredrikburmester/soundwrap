@@ -14,22 +14,17 @@ const linking: LinkingOptions<RootStackParamList> = {
   config: {
     screens: {
       Login: 'login',
-      Root: {
-        screens: {
-          TabOne: {
-            screens: {
-              TabOneScreen: 'one',
-            },
-          },
-          TabTwo: {
-            screens: {
-              TabTwoScreen: 'two',
-            },
-          },
-        },
-      },
-      AddPlaylistModal: 'add-playlist-modal',
+      Home: 'home',
+      Profile: 'profile',
       TopSongs: 'top-songs',
+      TopArtists: 'top-artists',
+      Soundcheck: 'soundcheck',
+      Search: 'search',
+      Create: 'create',
+      Room: 'room',
+      Join: 'join',
+      AddNonAuthPlayerModal: 'add-non-auth-player',
+      PlayerGuessDetails: 'player-guess-details',
       NotFound: '*',
     },
   },
