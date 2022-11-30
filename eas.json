@@ -5,12 +5,16 @@
   "build": {
     "development": {
       "developmentClient": true,
-      "distribution": "internal"
+      "distribution": "internal",
+      "env": { "ANDROID_HOME": "/Applications/Android Studio.app/Contents/jre/Contents/Home" }
     },
     "preview": {
-      "distribution": "internal"
+      "distribution": "internal",
+      "env": { "ANDROID_HOME": "/Applications/Android Studio.app/Contents/jre/Contents/Home" }
     },
-    "production": {}
+    "production": {
+      "env": { "ANDROID_HOME": "/Applications/Android Studio.app/Contents/jre/Contents/Home" }
+    }
   },
   "submit": {
     "production": {}

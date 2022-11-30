@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "soundcheck",
-    "slug": "soundcheck",
-    "version": "1.0.1",
+    "name": "Soundcheck",
+    "slug": "soundcheckgame",
+    "version": "1.0.2",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "soundcheck",
+    "scheme": "soundcheckgame",
     "userInterfaceStyle": "automatic",
     "splash": {
       "image": "./assets/images/splash.png",
@@ -21,21 +21,21 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.fredrikburmester.soundcheck"
+      "bundleIdentifier": "com.fredrikburmester.soundcheckgame"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#1F1F1E"
       },
-      "package": "com.fredrikburmester.soundcheck"
+      "package": "com.fredrikburmester.soundcheckgame"
     },
     "web": {
       "favicon": "./assets/images/favicon.png"
     },
     "extra": {
       "eas": {
-        "projectId": "1dd17ac9-40f0-4f3d-94a7-5dc33e719e93"
+        "projectId": "da76d42b-746e-4f97-9110-5fe5d50cec16"
       }
     },
     "runtimeVersion": {

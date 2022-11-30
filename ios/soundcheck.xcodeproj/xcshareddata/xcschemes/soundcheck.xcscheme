@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-               BuildableName = "soundcheck.app"
-               BlueprintName = "soundcheck"
-               ReferencedContainer = "container:soundcheck.xcodeproj">
+               BuildableName = "Soundcheck.app"
+               BlueprintName = "Soundcheck"
+               ReferencedContainer = "container:Soundcheck.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -33,9 +33,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "00E356ED1AD99517003FC87E"
-               BuildableName = "soundcheckTests.xctest"
-               BlueprintName = "soundcheckTests"
-               ReferencedContainer = "container:soundcheck.xcodeproj">
+               BuildableName = "SoundcheckTests.xctest"
+               BlueprintName = "SoundcheckTests"
+               ReferencedContainer = "container:Soundcheck.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -55,9 +55,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "soundcheck.app"
-            BlueprintName = "soundcheck"
-            ReferencedContainer = "container:soundcheck.xcodeproj">
+            BuildableName = "Soundcheck.app"
+            BlueprintName = "Soundcheck"
+            ReferencedContainer = "container:Soundcheck.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -72,9 +72,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "soundcheck.app"
-            BlueprintName = "soundcheck"
-            ReferencedContainer = "container:soundcheck.xcodeproj">
+            BuildableName = "Soundcheck.app"
+            BlueprintName = "Soundcheck"
+            ReferencedContainer = "container:Soundcheck.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>
