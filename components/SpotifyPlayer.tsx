@@ -21,6 +21,9 @@ export const SpotifyPlayer: React.FC<Props> = ({ title, songUri }) => {
       <WebView 
       style={{ marginHorizontal: 12, opacity: opacity }}
       onLoad={() => setOpacity(1)}
+      useWebKit={true}
+      originWhitelist={['*']}
+      allowsInlineMediaPlayback={true}
       source={{ 
         html: `
         <!DOCTYPE html>
@@ -43,7 +46,7 @@ export const SpotifyPlayer: React.FC<Props> = ({ title, songUri }) => {
             </style>
         </head>
         <body>
-          <iframe src="https://open.spotify.com/embed/track/${correctSongUri}" allowtransparency="true" allow="encrypted-media"></iframe>
+        <iframe src="https://open.spotify.com/embed/track/${correctSongUri}" allowfullscreen="false" allowtransparency="false" allow="encrypted-media"></iframe>
         </body>
         </html>
       ` }} />
