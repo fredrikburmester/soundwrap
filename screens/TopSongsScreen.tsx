@@ -1,6 +1,6 @@
 import { FlashList } from '@shopify/flash-list'
 import React, { useContext, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
-import { ActivityIndicator, Animated, ImageBackground, ImageBackgroundBase, ScrollView, StyleSheet, Alert, TouchableOpacity, FlatList } from 'react-native'
+import { ActivityIndicator, Animated, ImageBackground, ImageBackgroundBase, ScrollView, StyleSheet, Alert, TouchableOpacity, FlatList, Platform } from 'react-native'
 import { AuthContextType } from '../types/auth'
 import { createAndAddSongsToPlaylist, getTopSongs } from '../api/spotify'
 import { Text, View } from '../components/Themed'
@@ -9,7 +9,9 @@ import SegmentedControl from '@react-native-segmented-control/segmented-control'
 import { SongItem, SpotifyTopTracksResult } from '../types/spotify'
 import Ionicons from '@expo/vector-icons/Ionicons'
 import * as Haptics from 'expo-haptics'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
+import { useHeaderHeight } from '@react-navigation/elements'
+import Colors from '../constants/Colors'
 
 enum TimeRange {
   SHORT = 'short_term',
@@ -51,6 +53,9 @@ export default function TopSongsScreen({ navigation }: any) {
   
   const timeRangeRef = useRef<string>('')
   timeRangeRef.current = timeRange
+
+  const insets = useSafeAreaInsets()
+  const headerHeight = useHeaderHeight()
 
   const createTwoButtonAlert = () => {
     Alert.alert('Save as playlist', 'Do you want to save your top songs to a playlist in your Spotify account?', [
@@ -120,8 +125,9 @@ export default function TopSongsScreen({ navigation }: any) {
       data={songs}
       estimatedItemSize={100}
       ListHeaderComponent={
+        Platform.OS === 'ios' ? (
         <SegmentedControl
-          values={['Month', 'Half year', 'All time']}
+          values={['Month', 'Half year', 'Over A Year']}
           selectedIndex={selectedSegment}
           onChange={(event) => {
             changeTimeRange(event.nativeEvent.selectedSegmentIndex)
@@ -129,7 +135,24 @@ export default function TopSongsScreen({ navigation }: any) {
           tintColor="#fefefe"
           appearance="light"
           style={{ margin: 20, marginTop: 20 }}
-        />}
+        />
+        ) : (
+          <View style={{ marginTop: headerHeight  }}>
+            <SegmentedControl
+              values={['Month', 'Half year', 'Over A Year']}
+              selectedIndex={selectedSegment}
+              onChange={(event) => {
+                changeTimeRange(event.nativeEvent.selectedSegmentIndex)
+              }}
+              appearance="dark"
+              tintColor={Colors.primary}
+              style={{ margin: 20, marginTop: 20 }}
+              fontStyle={{ color: 'white' }}
+              tabStyle={{  }}
+            />
+          </View>
+        )
+      }
       refreshing={loading}
       renderItem={({item, index}) => (
         <>
@@ -157,7 +180,7 @@ export default function TopSongsScreen({ navigation }: any) {
       // <ScrollView>
       //   <>
       //     {/* <SegmentedControl
-      //       values={['Month', 'Half year', 'All time']}
+      //       values={['Month', 'Half year', 'Over A Year']}
       //       selectedIndex={selectedSegment}
       //       onChange={(event) => {
       //         changeTimeRange(event.nativeEvent.selectedSegmentIndex)

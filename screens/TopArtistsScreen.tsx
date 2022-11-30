@@ -1,6 +1,6 @@
 import SegmentedControl from '@react-native-segmented-control/segmented-control'
 import React, { useContext, useEffect, useMemo, useRef, useState } from 'react'
-import { ActivityIndicator, FlatList, ImageBackground, ScrollView, StyleSheet, Animated } from 'react-native'
+import { ActivityIndicator, FlatList, ImageBackground, ScrollView, StyleSheet, Animated, Platform } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { AuthContextType } from '../types/auth'
 import { ArtistItem, SpotifyTopArtistsResult } from '../types/spotify'
@@ -70,16 +70,35 @@ export default function TopArtistsScreen() {
 
   return (
     <ScrollView style={{ backgroundColor: Colors[colorScheme].background }} contentInsetAdjustmentBehavior="automatic">
-      <SegmentedControl
-        values={['Month', 'Half year', 'All time']}
-        selectedIndex={selectedSegment}
-        onChange={(event) => {
-          changeTimeRange(event.nativeEvent.selectedSegmentIndex)
-        }}
-        tintColor="#fefefe"
-        appearance="light"
-        style={{ margin: 20, marginTop: 20 }}
-      />
+{
+        Platform.OS === 'ios' ? (
+        <SegmentedControl
+          values={['Month', 'Half year', 'Over A Year']}
+          selectedIndex={selectedSegment}
+          onChange={(event) => {
+            changeTimeRange(event.nativeEvent.selectedSegmentIndex)
+          }}
+          tintColor="#fefefe"
+          appearance="light"
+          style={{ margin: 20, marginTop: 20 }}
+        />
+        ) : (
+          <View style={{ marginTop: headerHeight  }}>
+            <SegmentedControl
+              values={['Month', 'Half year', 'Over A Year']}
+              selectedIndex={selectedSegment}
+              onChange={(event) => {
+                changeTimeRange(event.nativeEvent.selectedSegmentIndex)
+              }}
+              appearance="dark"
+              tintColor={Colors.primary}
+              style={{ margin: 20, marginTop: 20 }}
+              fontStyle={{ color: 'white' }}
+              tabStyle={{  }}
+            />
+          </View>
+        )
+      }
       {!loading && artists.map((artist, index) => (
         <Animated.View                 // Special animatable View
           style={{

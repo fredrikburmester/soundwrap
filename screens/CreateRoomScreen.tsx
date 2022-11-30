@@ -97,7 +97,7 @@ export default function CreateRoomScreen({ navigation }: RootStackScreenProps<'C
         <Picker
           selectedValue={songsPerUser}
           itemStyle={{ color: 'white', fontSize: 18 }}
-          style={{ backgroundColor: 'transparent' }}
+          style={{ backgroundColor: 'transparent', color: 'white' }}
           onValueChange={(itemValue) =>
             setSongsPerUser(itemValue)
           }>
@@ -112,7 +112,7 @@ export default function CreateRoomScreen({ navigation }: RootStackScreenProps<'C
         <Picker
           selectedValue={timeRange}
           itemStyle={{ color: 'white', fontSize: 18 }}
-          style={{ backgroundColor: 'transparent' }}
+          style={{ backgroundColor: 'transparent', color: 'white' }}
           onValueChange={(itemValue, itemIndex) =>
             setTimeRange(itemValue)
           }>
