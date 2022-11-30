@@ -247,6 +247,8 @@ io.on('connection', (socket) => {
 				player.guesses.push({guess, currentSongIndex});
 				if(correct) player.score++
 			}
+
+			sendRoomUpdates(roomCode);
 		}
 	})
 
