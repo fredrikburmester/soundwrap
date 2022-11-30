@@ -40,7 +40,7 @@ export default function LoginScreen({ navigation }: RootStackScreenProps<'Login'
     // this must be set to false
     usePKCE: false,
     redirectUri: makeRedirectUri({
-      scheme: 'myapp',
+      scheme: 'soundcheckgame',
     }),
   },
     discovery
