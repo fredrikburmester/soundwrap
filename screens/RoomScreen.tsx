@@ -41,7 +41,7 @@ export default function RoomScreen({ route, navigation }: RootStackScreenProps<'
   const [songs, setSongs] = useState<{ song: SongItem, player: IUser }[]>([])
   const [isHost, setIsHost] = useState<boolean>(false)
   const [players, setPlayers] = useState<IUser[]>([])
-  const [currentSongIndex, setCurrentSongIndex] = useState<number>(0)
+  const [currentSongIndex, setCurrentSongIndex] = useState<number>(1)
   const [gamePosition, setGamePosition] = useState(0)
   const [guess, setGuess] = useState('')
   const [nonAuthUsers, setNonAuthUsers] = useState<NonAuthUser[]>([])
@@ -60,6 +60,9 @@ export default function RoomScreen({ route, navigation }: RootStackScreenProps<'
 
   const guessRef = useRef(guess)
   guessRef.current = guess
+  
+  const currentSongIndexRef = useRef(currentSongIndex)
+  currentSongIndexRef.current = currentSongIndex
 
   if (!auth.user) {
     navigation.navigate('Home')
@@ -172,14 +175,13 @@ export default function RoomScreen({ route, navigation }: RootStackScreenProps<'
       setGamePosition(room.gamePosition)
       setSongs(room.songs)
       setIsHost(room.host.id === auth.user?.id)
-      setGuess(room.players.filter(p => p.id === auth.user?.id)[0].guesses.filter((g: IGuess) => g.currentSongIndex === room.currentSongIndex)[0]?.guess || '')
 
-      if (room.currentSongIndex !== currentSongIndex) {
-        setLoading(false)
+      if (room.currentSongIndex !== currentSongIndexRef.current) {
         setGuess('')
-        setPlayersWhoGuessed([])
-        setCurrentSongIndex(room.currentSongIndex)
       }
+      
+      setCurrentSongIndex(room.currentSongIndex)
+      setLoading(false)
     })
 
   }, [])
@@ -208,11 +210,7 @@ export default function RoomScreen({ route, navigation }: RootStackScreenProps<'
 
   const onRefresh = () => {
     socket.connect()
-    socket.emit('requestRoomUpdate', { roomCode: roomCode })
-  }
-
-  const openModal = () => {
-    navigation.navigate('AddNonAuthPlayerModal')
+    socket.emit('requestRoomUpdate', roomCode)
   }
 
   const openGuessDetailModal = (user: IUser) => {
