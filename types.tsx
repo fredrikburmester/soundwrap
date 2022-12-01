@@ -30,7 +30,7 @@ export type RootStackParamList = {
   Search: undefined
   AddNonAuthPlayerModal: undefined
   PlayerGuessDetails: { user: IUser, songs: {song: SongItem, player: IUser}[]} 
-  Room: { roomCode: string, songsPerUser: number | undefined, timeRange: string | undefined, createRoom: boolean, nonAuthUser: NonAuthUser }
+  Room: { roomCode: string, songsPerUser: number | undefined, timeRange: string | undefined, createRoom: boolean, nonAuthUser: NonAuthUser | undefined }
 }
 
 export type RootStackScreenProps<Screen extends keyof RootStackParamList> = NativeStackScreenProps<
