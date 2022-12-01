@@ -6,7 +6,7 @@ import Button from '../components/Button'
 import { AuthContextType, IAuth } from '../types/auth'
 import React, { useContext, useEffect, useState } from 'react'
 import { AuthContext } from '../context/authContext'
-import { addSongsToPlaylist, createPlaylist, getUserPlaylists } from '../api/spotify'
+import { addSongsToPlaylist, createPlaylist, getUserPlaylists } from '../hooks/useSpotify'
 import Colors from '../constants/Colors'
 import { SafeAreaFrameContext, SafeAreaView } from 'react-native-safe-area-context'
 

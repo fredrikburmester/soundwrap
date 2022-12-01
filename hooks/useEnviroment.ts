@@ -1,29 +1,27 @@
 import Constants from 'expo-constants';
 import { Platform } from 'react-native';
 
-
-
 interface IEnv {
-  dev: {
+  development: {
     wsurl: string;
   },
-  staging: {
+  preview: {
     wsurl: string;
   },
-  prod: {
+  production: {
     wsurl: string;
   }
 }
   
 
 const ENV: IEnv = {
-  dev: {
+  development: {
     wsurl: 'http://0.0.0.0:5000',
   },
-  staging: {
+  preview: {
     wsurl: 'https://soundcheckgame-ts-ws-backend.fdrive.se',
   },
-  prod: {
+  production: {
     wsurl: 'https://soundcheckgame-ts-ws-backend.fdrive.se',
   },
 };
@@ -33,10 +31,10 @@ export const getEnvVars = (env = Constants.manifest?.releaseChannel): { wsurl: s
   // This variable is set to true when react-native is running in Dev mode.
   // __DEV__ is true when run locally, but false when published.
   if (__DEV__) {
-    return ENV.dev;
+    return ENV.development;
   } else if (env === 'staging') {
-    return ENV.staging;
+    return ENV.preview;
   }
   
-  return ENV.prod;
+  return ENV.production;
 };

@@ -1,30 +1,17 @@
-/**
- * If you are not familiar with React Navigation, refer to the "Fundamentals" guide:
- * https://reactnavigation.org/docs/getting-started
- *
- */
-import { FontAwesome, Ionicons } from '@expo/vector-icons'
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import * as React from 'react'
-import { useContext, useEffect, useState } from 'react'
-import { ColorSchemeName, Pressable, TouchableWithoutFeedback, Vibration, Image, TouchableOpacity, TouchableHighlight } from 'react-native'
+import { useContext, useEffect, useRef, useState } from 'react'
+import { ColorSchemeName, Pressable, TouchableWithoutFeedback, Vibration, Image, TouchableOpacity, TouchableHighlight, AppState } from 'react-native'
 import { AuthContextType, IAuth } from '../types/auth'
 
-import Colors from '../constants/Colors'
 import { AuthContext } from '../context/authContext'
-import useColorScheme from '../hooks/useColorScheme'
 import LoginScreen from '../screens/LoginScreen'
 import NotFoundScreen from '../screens/NotFoundScreen'
-import TabOneScreen from '../screens/HomeScreen'
-import TabTwoScreen from '../screens/ProfileScreen'
 import TopArtistsScreen from '../screens/TopArtistsScreen'
 import TopSongsScreen from '../screens/TopSongsScreen'
 import { RootStackParamList } from '../types'
 import LinkingConfiguration from './LinkingConfiguration'
-import * as Haptics from 'expo-haptics'
-import AddPlaylistModal from '../screens/AddPlaylistModal'
 import SoundcheckScreen from '../screens/SoundcheckScreen'
 import CreateRoomScreen from '../screens/CreateRoomScreen'
 import JoinRoomScreen from '../screens/JoinRoomScreen'
@@ -34,7 +21,7 @@ import ProfileScreen from '../screens/ProfileScreen'
 import SearchScreen from '../screens/SeachScreen'
 import AddNonAuthPlayerModal from '../components/AddNonAuthPlayerModal'
 import PlayerGuessDetailsComponent from '../components/PlayerGuessDetailsComponent'
-
+import { useSpotifyAuth } from '../hooks/useSpotifyAuth'
 
 type Props = {
   colorScheme: ColorSchemeName
@@ -60,15 +47,35 @@ const Navigation: React.FC<Props> = ({ colorScheme }: Props) => {
 
 export default Navigation
 
-/**
- * A root stack navigator is often used for displaying modals on top of all other content.
- * https://reactnavigation.org/docs/modal
- */
 const Stack = createNativeStackNavigator<RootStackParamList>()
 
 function RootNavigator() {
-  const { auth } = useContext(AuthContext) as AuthContextType
-  const colorScheme = useColorScheme()
+  const { auth, logout } = useContext(AuthContext) as AuthContextType
+  const appState = useRef(AppState.currentState);
+  const [appStateVisible, setAppStateVisible] = useState(appState.current);
+  const { getTokenStatus } = useSpotifyAuth()
+  
+  useEffect(() => {
+    const subscription = AppState.addEventListener("change", async nextAppState => {
+      if (
+        appState.current.match(/inactive|background/) &&
+        nextAppState === "active"
+      ) {
+        const status = await getTokenStatus(auth.token)
+        if (status === 401) {
+          logout()
+        } else {
+        }
+      }
+
+      appState.current = nextAppState;
+      setAppStateVisible(appState.current);
+    });
+
+    return () => {
+      subscription.remove();
+    };
+  }, []);
 
   if (!auth.authenticated) {
     return (
@@ -79,21 +86,6 @@ function RootNavigator() {
   } else {
     return (
       <Stack.Navigator>
-        {/* <Stack.Screen name="Root" component={BottomTabNavigator} options={{
-          title: 'Home',
-          headerShown: true,
-          headerLargeTitle: true,
-          headerStyle: {
-            height: 100,
-          },
-          headerLargeStyle: {
-            backgroundColor: Colors[colorScheme].background,
-          },
-          headerShadowVisible: false,
-          headerRight: () => (
-            <Image source={{ uri: auth.user?.avatar }} style={{ width: 40, height: 40, borderRadius: 20, marginRight: 10 }} />
-          ),
-        }} /> */}
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="Profile" component={ProfileScreen} />
         <Stack.Screen name="NotFound" component={NotFoundScreen} />
@@ -114,61 +106,3 @@ function RootNavigator() {
     )
   }
 }
-
-/**
- * A bottom tab navigator displays tab buttons on the bottom of the display to switch screens.
- * https://reactnavigation.org/docs/bottom-tab-navigator
- */
-// const BottomTab = createBottomTabNavigator<RootTabParamList>()
-
-// function BottomTabNavigator() {
-//   return (
-//     <BottomTab.Navigator
-//       initialRouteName="TabOne"
-//       screenOptions={{
-//         tabBarActiveTintColor: 'white',
-//         tabBarInactiveTintColor: 'gray',
-//         headerShown: false,
-//       }}>
-//       <BottomTab.Screen
-//         name="TabOne"
-//         component={TabOneScreen}
-//         options={({ navigation }: RootTabScreenProps<'TabOne'>) => ({
-//           title: 'Home',
-//           tabBarIcon: ({ color }) => <Ionicons name="md-home" size={20} color={color} />,
-//           tabBarButton: (props) => (
-//             <TouchableOpacity
-//               {...props}
-//               onPress={() => {
-//                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
-//                 props.onPress()
-//               }
-//               }
-//             />
-//           ),
-//         })}
-//       />
-//       <BottomTab.Screen
-//         name="TabTwo"
-//         component={TabTwoScreen}
-//         options={{
-//           title: 'Profile',
-//           tabBarIcon: ({ color }) => (
-//             <Ionicons name="md-person" size={20} color={color} />
-//           ),
-//           tabBarButton: (props) => (
-//             <TouchableOpacity
-//               {...props}
-//               onPress={() => {
-//                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
-//                 props.onPress()
-//               }
-//               }
-//             />
-//           ),
-//         }}
-
-//       />
-//     </BottomTab.Navigator>
-//   )
-// }

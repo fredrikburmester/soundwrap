@@ -3,7 +3,7 @@ import { View, Text, ActivityIndicator, ScrollView } from "react-native"
 import { RootStackScreenProps } from "../types"
 import SearchBar from 'react-native-platform-searchbar'
 import Button from "../components/Button"
-import { searchForTracks } from "../api/spotify"
+import { searchForTracks } from "../hooks/useSpotify"
 import { AuthContext } from "../context/authContext"
 import { AuthContextType } from "../types/auth"
 import { ButtonComponent } from "../components/ButtonComponent"

@@ -4,7 +4,7 @@ import { ActivityIndicator, FlatList, ImageBackground, ScrollView, StyleSheet, A
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { AuthContextType } from '../types/auth'
 import { ArtistItem, SpotifyTopArtistsResult } from '../types/spotify'
-import { getTopArtists } from '../api/spotify'
+import { useSpotify } from '../hooks/useSpotify'
 import { Text, View } from '../components/Themed'
 import Colors from '../constants/Colors'
 import { AuthContext } from '../context/authContext'
@@ -23,6 +23,7 @@ export default function TopArtistsScreen() {
   const [loading, setLoading] = useState<boolean>(false)
   const [selectedSegment, setSelectedSegment] = useState(0)
   const [timeRange, setTimeRange] = useState('short_term')
+  const { getTopArtists } = useSpotify()
 
   useEffect(() => {
     setLoading(true)

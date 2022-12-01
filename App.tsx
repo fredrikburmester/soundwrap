@@ -1,15 +1,17 @@
 import { StatusBar } from 'expo-status-bar'
-import React, { useEffect } from 'react'
+import React, { useContext, useEffect, useRef, useState } from 'react'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 
 import useCachedResources from './hooks/useCachedResources'
 import useColorScheme from './hooks/useColorScheme'
 import Navigation from './navigation'
-import AuthProvider from './context/authContext'
+import AuthProvider, { AuthContext } from './context/authContext'
 import Toast, { BaseToast, ErrorToast } from 'react-native-toast-message'
 
 import socket from './utils/socket'
 import Colors from './constants/Colors'
+import { AppState } from 'react-native'
+import { AuthContextType } from './types/auth'
 
 export default function App() {
   const isLoadingComplete = useCachedResources()
@@ -77,7 +79,6 @@ export default function App() {
       socket.disconnect()
     }
   }, [])
-
 
   if (!isLoadingComplete) {
     return null

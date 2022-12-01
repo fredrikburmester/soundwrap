@@ -5,7 +5,7 @@ import EditScreenInfo from '../components/EditScreenInfo'
 import { Text, View } from '../components/Themed'
 import { AuthContext } from '../context/authContext'
 import { RootStackParamList, RootStackScreenProps } from '../types'
-import { getMe } from '../api/spotify'
+import { getMe } from '../hooks/useSpotify'
 import { io } from "socket.io-client"
 import { Card } from '../components/Card'
 import Colors from '../constants/Colors'

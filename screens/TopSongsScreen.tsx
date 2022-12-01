@@ -1,8 +1,7 @@
 import { FlashList } from '@shopify/flash-list'
 import React, { useContext, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
-import { ActivityIndicator, Animated, ImageBackground, ImageBackgroundBase, ScrollView, StyleSheet, Alert, TouchableOpacity, FlatList, Platform } from 'react-native'
+import { ActivityIndicator, Animated, ImageBackground, ImageBackgroundBase, ScrollView, StyleSheet, Alert, TouchableOpacity, FlatList, Platform, Linking } from 'react-native'
 import { AuthContextType } from '../types/auth'
-import { createAndAddSongsToPlaylist, getTopSongs } from '../api/spotify'
 import { Text, View } from '../components/Themed'
 import { AuthContext } from '../context/authContext'
 import SegmentedControl from '@react-native-segmented-control/segmented-control'
@@ -12,6 +11,7 @@ import * as Haptics from 'expo-haptics'
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useHeaderHeight } from '@react-navigation/elements'
 import Colors from '../constants/Colors'
+import { useSpotify } from '../hooks/useSpotify'
 
 enum TimeRange {
   SHORT = 'short_term',
@@ -38,10 +38,6 @@ interface ICachedSongs {
 export default function TopSongsScreen({ navigation }: any) {
   const { logout, auth } = useContext(AuthContext) as AuthContextType
   const [songs, setSongs] = useState<SongItem[]>([])
-  // const [songsShortTerm, setSongsShortTerm] = useState<SongItem[]>([])
-  // const [songsMediumTerm, setSongsMediumTerm] = useState<SongItem[]>([])
-  // const [songsLongTerm, setSongsLongTerm] = useState<SongItem[]>([])
-  const [cachedSongs, setCachedSongs] = useState<ICachedSongs>({'short_term': [], 'medium_term': [], 'long_term': []})
   const [loading, setLoading] = useState(true)
   const [loadingMore, setLoadingMore] = useState(false)
   const [timeRange, setTimeRange] = useState('short_term')
@@ -57,6 +53,8 @@ export default function TopSongsScreen({ navigation }: any) {
   const insets = useSafeAreaInsets()
   const headerHeight = useHeaderHeight()
 
+  const { createAndAddSongsToPlaylist, getTopSongs } = useSpotify();
+
   const createTwoButtonAlert = () => {
     Alert.alert('Save as playlist', 'Do you want to save your top songs to a playlist in your Spotify account?', [
       {
@@ -65,6 +63,20 @@ export default function TopSongsScreen({ navigation }: any) {
         style: 'cancel',
       },
       { text: 'Save', onPress: () => createAndAddSongsToPlaylist(auth.token, newPlaylistName, stateRef.current) },
+    ])
+  }
+  
+  const openInSpotifyAlert = (item: SongItem) => {
+    Alert.alert('Open in Spotify?', '', [
+      {
+        text: 'Cancel',
+        onPress: () => console.log('Cancel Pressed'),
+        style: 'cancel',
+      },
+      { text: 'Open', onPress: () => {
+        Linking.openURL(item.external_urls.spotify)
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+      } },
     ])
   }
 
@@ -96,11 +108,10 @@ export default function TopSongsScreen({ navigation }: any) {
   useEffect(() => {
     setLoading(true)
     fadeAnim.setValue(0)
-   
+
     getTopSongs(auth.token, timeRange).then((res: SpotifyTopTracksResult) => {
       if (res && res.items) {
         setSongs(res.items)
-        // setCachedSongs({...cachedSongs, [timeRange]: res.items})
         setLoading(false)
       } else {
         console.log("error", res)
@@ -162,48 +173,25 @@ export default function TopSongsScreen({ navigation }: any) {
                 opacity: fadeAnim,
               }}
               key={index}
-            >
-              <View style={{ marginBottom: 20 }}>
-                <SongCard song={item} index={index} />
-              </View>
+              >
+              <TouchableOpacity onPress={() => 
+                openInSpotifyAlert(item)
+              }>
+                <View style={{ marginBottom: 20 }}>
+                  <SongCard song={item} index={index} />
+                </View>
+              </TouchableOpacity>
             </Animated.View>}
         </>
       )}
       ListFooterComponent={
         <>
-          {cachedSongs[timeRange].length === 0 && !loading && <Text style={{ textAlign: 'center', marginTop: 20 }}>You have no top songs for this time period!</Text>}
+          {!loading && <Text style={{ textAlign: 'center', marginTop: 20 }}>You have no top songs for this time period!</Text>}
           {loading || loadingMore && <ActivityIndicator size="small" color="white" style={{ marginTop: 20 }} />}
         </>
       }
       onEndReached={() => getMoreSongs()}
     />
-      // <ScrollView>
-      //   <>
-      //     {/* <SegmentedControl
-      //       values={['Month', 'Half year', 'Over A Year']}
-      //       selectedIndex={selectedSegment}
-      //       onChange={(event) => {
-      //         changeTimeRange(event.nativeEvent.selectedSegmentIndex)
-      //       }}
-      //       tintColor="#fefefe"
-      //       appearance="light"
-      //       style={{ margin: 20, marginTop: 200 }}
-      //     /> */}
-      //     {cachedSongs[timeRange].map((item: SongItem, index: number) => {
-      //         <Animated.View
-      //         style={{
-      //           opacity: fadeAnim,
-      //         }}
-      //         key={index}
-      //         >
-      //           <View style={{ marginBottom: 20 }}>
-      //             <SongCard song={item} index={index} />
-      //           </View>
-      //         </Animated.View>
-      //       })
-      //     }
-      //   </>
-      // </ScrollView>
   )
 }
 

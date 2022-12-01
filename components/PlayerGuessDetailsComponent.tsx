@@ -12,7 +12,7 @@ import { AuthContextType, NonAuthUser } from '../types/auth'
 import { Item, Tracks2 } from '../types/spotify'
 import { Card } from './Card'
 import SearchBar from 'react-native-platform-searchbar'
-import { searchForTracks } from '../api/spotify'
+import { searchForTracks } from '../hooks/useSpotify'
 import { ButtonComponent } from './ButtonComponent'
 import { RootStackScreenProps } from '../types'
 

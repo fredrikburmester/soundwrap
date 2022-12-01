@@ -5,7 +5,6 @@ import EditScreenInfo from '../components/EditScreenInfo'
 import { Text, View } from '../components/Themed'
 import { AuthContext } from '../context/authContext'
 import { RootStackParamList, RootStackScreenProps } from '../types'
-import { addSongsToPlaylist, createAndAddSongsToPlaylist, getMe, getTopSongs } from '../api/spotify'
 import { io } from "socket.io-client"
 import { Card } from '../components/Card'
 import Colors from '../constants/Colors'
@@ -27,6 +26,7 @@ import {
   ClientEmits,
   ServerEmits
 } from '../types/socket'
+import { useSpotify } from '../hooks/useSpotify'
 
 export default function RoomScreen({ route, navigation }: RootStackScreenProps<'Room'>) {
 
@@ -63,6 +63,8 @@ export default function RoomScreen({ route, navigation }: RootStackScreenProps<'
   
   const currentSongIndexRef = useRef(currentSongIndex)
   currentSongIndexRef.current = currentSongIndex
+
+  const { createAndAddSongsToPlaylist } = useSpotify()
 
   if (!auth.user) {
     navigation.navigate('Home')
@@ -243,7 +245,10 @@ export default function RoomScreen({ route, navigation }: RootStackScreenProps<'
             fontWeight: 'bold',
             color: Colors.primary,
           }}>{roomCode}</Text>
-          <Text style={{ fontStyle: 'italic' }}>Invite others to play! While wating, write something in the chat! <Text style={{ color: Colors.primary }}>Who's gonna win?</Text></Text>
+          <Text style={{ fontStyle: 'italic' }}>
+            {isHost && 'Invite others to play! While wating, write something in the chat! ' }
+            {!isHost && 'Waiting for host to start the game...' }
+          <Text style={{ color: Colors.primary }}>Who's gonna win?</Text></Text>
           {/* <View style={{ marginTop: 10, opacity: 1 }}>
             <ButtonComponent size='sm' title="Add non-spotify player" onPress={addNonAuthPlayer} style={{ width: 200, backgroundColor: Colors.backgroundDark }} />
           </View> */}
