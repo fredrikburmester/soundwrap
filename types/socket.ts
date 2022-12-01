@@ -16,4 +16,5 @@ export const enum ServerEmits {
   REQUEST_TO_CREATE_ROOM_REJECTED = "requestToCreateRoomRejected",
   NO_SONGS_AVAILABLE = "noSongsAvailable",
   ROOM_UPDATED = "roomUpdated",
+  PLAYER_MADE_A_GUESS = "playerMadeAGuess",
 }
