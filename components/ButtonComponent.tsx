@@ -1,17 +1,18 @@
 import React from 'react'
-import { TouchableOpacity, } from 'react-native'
+import { TouchableOpacity, View, } from 'react-native'
 import { Text } from '../components/Themed'
 import Colors from '../constants/Colors'
 
 interface Props {
-  title: string
+  title?: string
   onPress: () => void
   color?: string
   size?: 'sm' | 'lg'
   style?: any
+  children?: any
 }
 
-export const ButtonComponent: React.FC<Props> = ({ title, onPress, color, size, style }) => {
+export const ButtonComponent: React.FC<Props> = ({ title, onPress, color, size, style, children }) => {
 
   return (
     <TouchableOpacity
@@ -26,7 +27,10 @@ export const ButtonComponent: React.FC<Props> = ({ title, onPress, color, size, 
       }, style]}
       onPress={() => onPress()}
     >
-      <Text style={{ color: 'white', fontSize: 16 }}>{title}</Text>
+      {title && <Text style={{ color: 'white', fontSize: 16 }}>{title}</Text>}
+      {children && <View>
+        {children}
+      </View>}
     </TouchableOpacity>
   )
 }
