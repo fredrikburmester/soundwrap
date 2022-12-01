@@ -18,6 +18,7 @@ import { Picker } from '@react-native-picker/picker'
 import Toast from 'react-native-toast-message'
 import { TextInputComponent } from '../components/TextInputComponent'
 import { ButtonComponent } from '../components/ButtonComponent'
+import { useFocusEffect } from '@react-navigation/native';
 
 const generateRandomString = (length: number) => {
   let text = ''
@@ -31,7 +32,7 @@ const generateRandomString = (length: number) => {
 
 export default function CreateRoomScreen({ navigation }: RootStackScreenProps<'Create'>) {
   const colorScheme = useColorScheme()
-  const [roomCode, setRoomCode] = useState(generateRandomString(4))
+  const [roomCode, setRoomCode] = useState<string>('')
   const [songsPerUser, setSongsPerUser] = useState<number>(2)
   const [timeRange, setTimeRange] = useState<string>('medium_term')
 
@@ -71,6 +72,14 @@ export default function CreateRoomScreen({ navigation }: RootStackScreenProps<'C
     })
   }, [])
 
+  useFocusEffect(
+    React.useCallback(() => {
+      setRoomCode(generateRandomString(4))
+    }, [])
+  );
+
+  
+
   const showToast = (type: 'success' | 'error' | 'info', text1: string, text2: string) => {
     Toast.show({
       type: type,
@@ -80,7 +89,7 @@ export default function CreateRoomScreen({ navigation }: RootStackScreenProps<'C
   }
 
   const createRoom = () => {
-    navigation.navigate('Room', { roomCode: roomCode, songsPerUser: songsPerUser, timeRange: timeRange, createRoom: true })
+    navigation.navigate('Room', { roomCode: roomCode, songsPerUser: songsPerUser, timeRange: timeRange, createRoom: true, nonAuthUser: undefined })
   }
 
   return (
@@ -105,6 +114,10 @@ export default function CreateRoomScreen({ navigation }: RootStackScreenProps<'C
           <Picker.Item label="Two" value={2} />
           <Picker.Item label="Three" value={3} />
           <Picker.Item label="Four" value={4} />
+          <Picker.Item label="Five" value={5} />
+          <Picker.Item label="Six" value={6} />
+          <Picker.Item label="Seven" value={7} />
+          <Picker.Item label="Eight" value={8} />
         </Picker>
       </View>
       <View style={{ backgroundColor: Colors.backgroundDark, borderRadius: 10, marginBottom: 8 }}>
