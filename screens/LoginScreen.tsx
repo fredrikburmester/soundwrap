@@ -1,18 +1,15 @@
-import { ActivityIndicator, SafeAreaView, StyleSheet, TouchableOpacity } from 'react-native'
+import { ActivityIndicator, Pressable, SafeAreaView, StyleSheet, TouchableOpacity } from 'react-native'
 
-import EditScreenInfo from '../components/EditScreenInfo'
 import { Text, View } from '../components/Themed'
-import { RootStackScreenProps, RootTabScreenProps } from '../types'
-import Button from '../components/Button'
+import { RootStackScreenProps } from '../types'
 import { AuthContextType, IAuth } from '../types/auth'
 import { AuthContext } from '../context/authContext'
 import React, { useContext, useEffect, useState } from 'react'
-import { getMe } from '../hooks/useSpotify'
 import * as WebBrowser from 'expo-web-browser'
 import { makeRedirectUri, ResponseType, useAuthRequest } from 'expo-auth-session'
 import Colors from '../constants/Colors'
-import { SafeAreaProvider } from 'react-native-safe-area-context'
 import * as Haptics from 'expo-haptics'
+import { HoldMenuProvider } from 'react-native-hold-menu';
 
 WebBrowser.maybeCompleteAuthSession()
 
@@ -36,8 +33,6 @@ export default function LoginScreen({ navigation }: RootStackScreenProps<'Login'
     responseType: ResponseType.Token,
     clientId: 'b628fccd4e284c469c95f515f14d079e',
     scopes: ['user-read-email', 'playlist-modify-public', 'user-top-read', 'playlist-read-private', 'streaming', 'user-modify-playback-state', 'user-read-private', 'user-read-playback-state', 'user-read-playback-position', 'user-modify-playback-state', 'user-read-currently-playing'],
-    // In order to follow the "Authorization Code Flow" to fetch token after authorizationEndpoint
-    // this must be set to false
     usePKCE: false,
     redirectUri: makeRedirectUri({
       scheme: 'soundcheckgame',
@@ -64,9 +59,24 @@ export default function LoginScreen({ navigation }: RootStackScreenProps<'Login'
         After the game you can create a mix-tape of all your favorite songs, perfect for a party!</Text>
       <Text style={styles.description2}>Login with Spotify to get started!</Text>
       {/* <Button size='lg' title="AUTHENTICATE" onPress={() => requestTokenAndLogin()} disabled={loading} /> */}
-      {!loading && <TouchableOpacity style={{ padding: 12, backgroundColor: Colors.primary, borderRadius: 10, marginHorizontal: 18, width: '100%', justifyContent: 'center', alignItems: 'center', marginTop: 'auto', height: 48 }} onPress={requestTokenAndLogin}>
+      {/* {!loading && <TouchableOpacity style={{ padding: 12, backgroundColor: Colors.primary, borderRadius: 10, marginHorizontal: 18, width: '100%', justifyContent: 'center', alignItems: 'center', marginTop: 'auto', height: 48 }} onPress={requestTokenAndLogin}>
         <Text style={{ fontWeight: 'bold' }}>Login</Text>
-      </TouchableOpacity>}
+      </TouchableOpacity>} */}
+      {!loading && <Pressable 
+      style={({ pressed }) => 
+      [{ padding: 12, 
+        backgroundColor: Colors.primary, 
+        borderRadius: 10, 
+        marginHorizontal: 18, 
+        width: '100%', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        marginTop: 'auto', 
+        height: 48 }, pressed ? {opacity: 0.5} : {}]} 
+        onPress={requestTokenAndLogin} 
+        >
+        <Text style={{ fontWeight: 'bold' }}>Login</Text>
+      </Pressable>}
       {loading && <TouchableOpacity style={{ padding: 12, backgroundColor: Colors.primary, opacity: 0.5, borderRadius: 10, marginHorizontal: 18, width: '100%', justifyContent: 'center', alignItems: 'center', marginTop: 'auto', height: 48 }} onPress={requestTokenAndLogin}>
         <ActivityIndicator size="small" color="white" />
       </TouchableOpacity>}
