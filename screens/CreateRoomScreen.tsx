@@ -1,24 +1,14 @@
 import React, { useContext, useEffect, useRef, useState } from 'react'
 import { StyleSheet, Image, FlatList, TouchableOpacity, ScrollView, TextInput, Switch } from 'react-native'
-import { AuthContextType, IUser } from '../types/auth'
-import EditScreenInfo from '../components/EditScreenInfo'
 import { Text, View } from '../components/Themed'
-import { AuthContext } from '../context/authContext'
 import { RootStackParamList, RootStackScreenProps } from '../types'
-import { getMe } from '../hooks/useSpotify'
-import { io } from "socket.io-client"
-import { Card } from '../components/Card'
-import Colors from '../constants/Colors'
 import useColorScheme from '../hooks/useColorScheme'
-import { SafeAreaView } from 'react-native-safe-area-context'
-import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { useHeaderHeight } from '@react-navigation/elements'
-import { SwitchComponent } from '../components/SwitchComponent'
 import { Picker } from '@react-native-picker/picker'
 import Toast from 'react-native-toast-message'
 import { TextInputComponent } from '../components/TextInputComponent'
 import { ButtonComponent } from '../components/ButtonComponent'
 import { useFocusEffect } from '@react-navigation/native';
+import Colors from '../constants/Colors'
 
 const generateRandomString = (length: number) => {
   let text = ''
@@ -61,10 +51,6 @@ export default function CreateRoomScreen({ navigation }: RootStackScreenProps<'C
     navigation.setOptions({
       title: 'Create room',
       headerBackTitle: 'Back',
-      // headerLargeTitle: false,
-      // headerLargeStyle: {
-      //   backgroundColor: Colors.background,
-      // },
       headerStyle: {
         backgroundColor: Colors.background,
       },
@@ -77,8 +63,6 @@ export default function CreateRoomScreen({ navigation }: RootStackScreenProps<'C
       setRoomCode(generateRandomString(4))
     }, [])
   );
-
-  
 
   const showToast = (type: 'success' | 'error' | 'info', text1: string, text2: string) => {
     Toast.show({
@@ -134,22 +118,7 @@ export default function CreateRoomScreen({ navigation }: RootStackScreenProps<'C
           <Picker.Item label="Over a year" value="long_term" />
         </Picker>
       </View>
-      {/* <TouchableOpacity
-        style={{
-          backgroundColor: Colors[colorScheme].primary,
-          padding: 10,
-          borderRadius: 10,
-          width: '100%',
-          height: 45,
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-        onPress={() => createRoom()}
-      >
-        <Text style={{ color: 'white', fontSize: 16 }}>Create room</Text>
-      </TouchableOpacity> */}
       <ButtonComponent title="Create room" onPress={createRoom} />
-      {/* <SwitchComponent /> */}
     </ScrollView>
   )
 }

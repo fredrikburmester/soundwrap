@@ -29,13 +29,9 @@ export default function TopArtistsScreen() {
     setLoading(true)
     fadeAnim.setValue(0)
     getTopArtists(auth.token, timeRange).then((res: SpotifyTopArtistsResult) => {
-      if (res && res.items) {
-        setArtists(res.items)
-        setLoading(false)
-      } else {
-        console.log("error", res)
-        logout()
-      }
+      setArtists(res.items)
+    }).finally(() => {
+      setLoading(false)
     })
   }, [timeRange])
 

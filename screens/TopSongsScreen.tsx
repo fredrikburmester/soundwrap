@@ -82,9 +82,11 @@ export default function TopSongsScreen({ navigation }: any) {
 
   const getMoreSongs = async () => {
     setLoadingMore(true)
-    const newSongs = await getTopSongs(auth.token, timeRange, songs.length, 5)
-    setSongs([...songs, ...newSongs.items])
-    setLoadingMore(false)
+    getTopSongs(auth.token, timeRange, songs.length, 5).then((res: SpotifyTopTracksResult) => {
+      setSongs([...songs, ...res.items])
+    }).finally(() => {
+      setLoadingMore(false)
+    })
   }
 
   const changeTimeRange = (index: number) => {
@@ -110,15 +112,9 @@ export default function TopSongsScreen({ navigation }: any) {
     fadeAnim.setValue(0)
 
     getTopSongs(auth.token, timeRange).then((res: SpotifyTopTracksResult) => {
-      if (res && res.items) {
-        setSongs(res.items)
-        setLoading(false)
-      } else {
-        console.log("error", res)
-        logout()
-      }
-    }).catch((err) => {
-      console.log(err)
+      setSongs(res.items)
+    }).finally(() => {
+      setLoading(false)
     })
   }, [timeRange])
 

@@ -1,12 +1,13 @@
 import { AuthContextType } from "../types/auth"
 import { AuthContext } from "../context/authContext"
 import { useContext } from "react"
-import { SongItem, SpotifyMeResult, SpotifyMyPlaylistsResult, SpotifySearchResponse, SpotifyTopArtistsResult,SpotifyTopTracksResult, Tracks2 } from "../types/spotify"
+import { ArtistItem, SongItem, SpotifyMeResult, SpotifyMyPlaylistsResult, SpotifySearchResponse, SpotifyTopArtistsResult,SpotifyTopTracksResult, Tracks2 } from "../types/spotify"
 
 export const useSpotify = () => {
   const { logout } = useContext(AuthContext) as AuthContextType;
 
   const getTopSongs = async (token: string, timeRange: string, offset = 0, limit = 25) => {
+    if(demo) return { items: [] as SongItem[] } as SpotifyTopTracksResult;
     
     const response = await fetch(`https://api.spotify.com/v1/me/top/tracks?time_range=${timeRange}&offset=${offset}&limit=${limit}`, {
       headers: {
@@ -16,6 +17,7 @@ export const useSpotify = () => {
   
     if(response.status === 401) {
       logout()
+      return { items: [] as SongItem[] } as SpotifyTopTracksResult;
     }
   
     return response.json() as Promise<SpotifyTopTracksResult>;
@@ -27,6 +29,12 @@ export const useSpotify = () => {
         Authorization: `Bearer ${token}`,
       },
     });
+
+    if(response.status === 401) {
+      logout()
+      return { items: [] as ArtistItem[] } as SpotifyTopArtistsResult;
+    }
+
     return response.json() as Promise<SpotifyTopArtistsResult>;
   }
   
