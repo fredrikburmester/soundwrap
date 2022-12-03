@@ -9,7 +9,6 @@ import * as WebBrowser from 'expo-web-browser'
 import { makeRedirectUri, ResponseType, useAuthRequest } from 'expo-auth-session'
 import Colors from '../constants/Colors'
 import * as Haptics from 'expo-haptics'
-import { HoldMenuProvider } from 'react-native-hold-menu';
 
 WebBrowser.maybeCompleteAuthSession()
 
@@ -31,7 +30,7 @@ export default function LoginScreen({ navigation }: RootStackScreenProps<'Login'
 
   const [request, response, promptAsync] = useAuthRequest({
     responseType: ResponseType.Token,
-    clientId: 'b628fccd4e284c469c95f515f14d079e',
+    clientId: 'bad02ecfaf4046638a1daa7f60cbe42b',
     scopes: ['user-read-email', 'playlist-modify-public', 'user-top-read', 'playlist-read-private', 'streaming', 'user-modify-playback-state', 'user-read-private', 'user-read-playback-state', 'user-read-playback-position', 'user-modify-playback-state', 'user-read-currently-playing'],
     usePKCE: false,
     redirectUri: makeRedirectUri({

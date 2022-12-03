@@ -7,8 +7,6 @@ export const useSpotify = () => {
   const { logout } = useContext(AuthContext) as AuthContextType;
 
   const getTopSongs = async (token: string, timeRange: string, offset = 0, limit = 25) => {
-    if(demo) return { items: [] as SongItem[] } as SpotifyTopTracksResult;
-    
     const response = await fetch(`https://api.spotify.com/v1/me/top/tracks?time_range=${timeRange}&offset=${offset}&limit=${limit}`, {
       headers: {
         Authorization: `Bearer ${token}`,
