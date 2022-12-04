@@ -174,15 +174,15 @@ export default function RoomScreen({ route, navigation }: RootStackScreenProps<'
 
     socket.on(ServerEmits.ROOM_UPDATED, (room: IRoom) => {
       setPlayers(room.players)
-      setGamePosition(room.gamePosition)
       setSongs(room.songs)
       setIsHost(room.host.id === auth.user?.id)
-
+      
       if (room.currentSongIndex !== currentSongIndexRef.current) {
         setGuess('')
       }
       
       setCurrentSongIndex(room.currentSongIndex)
+      setGamePosition(room.gamePosition)
       setLoading(false)
     })
 
@@ -290,7 +290,8 @@ export default function RoomScreen({ route, navigation }: RootStackScreenProps<'
           </TouchableHighlight>
         )}
         <View style={{ height: 90, marginTop: 0 }}>
-          <SpotifyPlayer songUri={songs[currentSongIndex].song.uri} />
+        {songs && songs.length > currentSongIndex && 
+          <SpotifyPlayer songUri={songs[currentSongIndex].song.uri} />}
         </View>
         {isHost && !loading && <View style={{ marginHorizontal: 20, marginVertical: 20 }}>
           <ButtonComponent title="Next song" onPress={nextSong} />
