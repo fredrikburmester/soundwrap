@@ -16,7 +16,7 @@ interface IEnv {
 
 const ENV: IEnv = {
   development: {
-    wsurl: 'http://0.0.0.0:5000',
+    wsurl: 'http://192.168.0.103:5000',
   },
   preview: {
     wsurl: 'https://soundcheckgame-ts-ws-backend.fdrive.se',
