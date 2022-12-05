@@ -54,26 +54,28 @@ export default function LoginScreen({ navigation }: RootStackScreenProps<'Login'
   return (
     <SafeAreaView style={{ flex: 1, alignItems: 'center', margin: 18, marginBottom: 48 }}>
       <Text style={styles.title}>Soundcheck</Text>
-      <Text style={styles.description}>Soundcheck is a game to play with your friends! Create a room, invite your friends, and guess each others favorite songs. Listen to music, chat and have fun together!
+      <Text style={styles.description}>Soundcheck is a game to play with your friends! Create a room, invite your friends, and guess each others favorite songs. Listen to music and have fun together!
         After the game you can create a mix-tape of all your favorite songs, perfect for a party!</Text>
       <Text style={styles.description2}>Login with Spotify to get started!</Text>
       {/* <Button size='lg' title="AUTHENTICATE" onPress={() => requestTokenAndLogin()} disabled={loading} /> */}
       {/* {!loading && <TouchableOpacity style={{ padding: 12, backgroundColor: Colors.primary, borderRadius: 10, marginHorizontal: 18, width: '100%', justifyContent: 'center', alignItems: 'center', marginTop: 'auto', height: 48 }} onPress={requestTokenAndLogin}>
         <Text style={{ fontWeight: 'bold' }}>Login</Text>
       </TouchableOpacity>} */}
-      {!loading && <Pressable 
-      style={({ pressed }) => 
-      [{ padding: 12, 
-        backgroundColor: Colors.primary, 
-        borderRadius: 10, 
-        marginHorizontal: 18, 
-        width: '100%', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        marginTop: 'auto', 
-        height: 48 }, pressed ? {opacity: 0.5} : {}]} 
-        onPress={requestTokenAndLogin} 
-        >
+      {!loading && <Pressable
+        style={({ pressed }) =>
+          [{
+            padding: 12,
+            backgroundColor: Colors.primary,
+            borderRadius: 10,
+            marginHorizontal: 18,
+            width: '100%',
+            justifyContent: 'center',
+            alignItems: 'center',
+            marginTop: 'auto',
+            height: 48
+          }, pressed ? { opacity: 0.5 } : {}]}
+        onPress={requestTokenAndLogin}
+      >
         <Text style={{ fontWeight: 'bold' }}>Login</Text>
       </Pressable>}
       {loading && <TouchableOpacity style={{ padding: 12, backgroundColor: Colors.primary, opacity: 0.5, borderRadius: 10, marginHorizontal: 18, width: '100%', justifyContent: 'center', alignItems: 'center', marginTop: 'auto', height: 48 }} onPress={requestTokenAndLogin}>
