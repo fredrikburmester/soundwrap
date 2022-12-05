@@ -9,7 +9,9 @@ import * as WebBrowser from 'expo-web-browser'
 import { makeRedirectUri, ResponseType, useAuthRequest } from 'expo-auth-session'
 import Colors from '../constants/Colors'
 import * as Haptics from 'expo-haptics'
-
+import { LinearGradient } from 'expo-linear-gradient'
+import MaskedView from '@react-native-masked-view/masked-view'
+import { GradientText } from '../components/GradientText'
 WebBrowser.maybeCompleteAuthSession()
 
 // Endpoint
@@ -53,14 +55,10 @@ export default function LoginScreen({ navigation }: RootStackScreenProps<'Login'
 
   return (
     <SafeAreaView style={{ flex: 1, alignItems: 'center', margin: 18, marginBottom: 48 }}>
-      <Text style={styles.title}>Soundcheck</Text>
+      <GradientText text='Soundcheck' />
       <Text style={styles.description}>Soundcheck is a game to play with your friends! Create a room, invite your friends, and guess each others favorite songs. Listen to music and have fun together!
         After the game you can create a mix-tape of all your favorite songs, perfect for a party!</Text>
-      <Text style={styles.description2}>Login with Spotify to get started!</Text>
-      {/* <Button size='lg' title="AUTHENTICATE" onPress={() => requestTokenAndLogin()} disabled={loading} /> */}
-      {/* {!loading && <TouchableOpacity style={{ padding: 12, backgroundColor: Colors.primary, borderRadius: 10, marginHorizontal: 18, width: '100%', justifyContent: 'center', alignItems: 'center', marginTop: 'auto', height: 48 }} onPress={requestTokenAndLogin}>
-        <Text style={{ fontWeight: 'bold' }}>Login</Text>
-      </TouchableOpacity>} */}
+      <Text style={[styles.description2, { marginTop: 'auto' }]}>Authenticate with Spotify to get started!</Text>
       {!loading && <Pressable
         style={({ pressed }) =>
           [{
@@ -71,7 +69,6 @@ export default function LoginScreen({ navigation }: RootStackScreenProps<'Login'
             width: '100%',
             justifyContent: 'center',
             alignItems: 'center',
-            marginTop: 'auto',
             height: 48
           }, pressed ? { opacity: 0.5 } : {}]}
         onPress={requestTokenAndLogin}
@@ -95,8 +92,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 40,
     fontWeight: 'bold',
-    marginBottom: 20,
-    marginTop: 'auto'
+    marginTop: 'auto',
   },
   description: {
     fontSize: 14,
