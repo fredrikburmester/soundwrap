@@ -5,7 +5,6 @@ import { Text, View } from '../components/Themed'
 import { AuthContext } from '../context/authContext'
 import { RootStackParamList, RootStackScreenProps } from '../types'
 import Colors from '../constants/Colors'
-import useColorScheme from '../hooks/useColorScheme'
 import socket from '../utils/socket'
 import { Ionicons } from '@expo/vector-icons'
 import { IRoom } from '../types/room'
@@ -233,8 +232,8 @@ export default function RoomScreen({ route, navigation }: RootStackScreenProps<'
             color: Colors.primary,
           }}>{roomCode}</Text>
           <Text style={{ fontStyle: 'italic' }}>
-            {isHost && "Other users can join the game by entering the room code. Start the game when everyone's ready!"}
-            {!isHost && 'Waiting for host to start the game... Invite others by sharing the room code with them!'}
+            {isHost && "Other users can join the game by entering the room code. Start the game when everyone's ready! "}
+            {!isHost && 'Waiting for host to start the game... Invite others by sharing the room code with them! '}
             <Text style={{ color: Colors.primary }}>Who's gonna win?</Text></Text>
           {/* <View style={{ marginTop: 10, opacity: 1 }}>
             <ButtonComponent size='sm' title="Add non-spotify player" onPress={addNonAuthPlayer} style={{ width: 200, backgroundColor: Colors.backgroundDark }} />

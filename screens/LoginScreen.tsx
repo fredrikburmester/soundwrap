@@ -9,10 +9,7 @@ import * as WebBrowser from 'expo-web-browser'
 import { makeRedirectUri, ResponseType, useAuthRequest } from 'expo-auth-session'
 import Colors from '../constants/Colors'
 import * as Haptics from 'expo-haptics'
-import { LinearGradient } from 'expo-linear-gradient'
-import MaskedView from '@react-native-masked-view/masked-view'
 import { GradientText } from '../components/GradientText'
-WebBrowser.maybeCompleteAuthSession()
 
 // Endpoint
 const discovery = {
@@ -38,6 +35,7 @@ export default function LoginScreen({ navigation }: RootStackScreenProps<'Login'
     redirectUri: makeRedirectUri({
       scheme: 'soundcheckgame',
     }),
+
   },
     discovery
   )
@@ -54,29 +52,44 @@ export default function LoginScreen({ navigation }: RootStackScreenProps<'Login'
   }, [response])
 
   return (
-    <SafeAreaView style={{ flex: 1, alignItems: 'center', margin: 18, marginBottom: 48 }}>
-      <GradientText text='Soundcheck' />
+    <SafeAreaView style={{ flex: 1, marginBottom: 48, margin: 17 }}>
+      <Text style={{
+        fontSize: 40,
+        fontWeight: 'bold',
+        marginTop: 'auto',
+        marginBottom: -10
+      }}>
+        Welcome to
+      </Text>
+      <GradientText text='Soundcheck' style={{ marginBottom: 30 }} />
+      <Text
+        style={{
+          fontSize: 20,
+          fontWeight: 'bold',
+          color: 'white'
+        }}
+      >
+        {'Check out your top songs and artists from Spotify, create mix-tapes and playlists!\n\nPlay and win over your friends by guessing their favourite songs!'}
+      </Text>
       <Text style={[styles.description3]}>This app is not affiliated with Spotify AB or any of it's partners in any way</Text>
-
       {!loading && <Pressable
         style={({ pressed }) =>
           [{
             padding: 12,
             backgroundColor: Colors.primary,
             borderRadius: 10,
-            marginHorizontal: 18,
-            width: '100%',
             justifyContent: 'center',
             alignItems: 'center',
+            width: '100%',
             height: 48
           }, pressed ? { opacity: 0.5 } : {}]}
         onPress={requestTokenAndLogin}
       >
         <Text style={{ fontWeight: 'bold' }}>Login with Spotify</Text>
       </Pressable>}
-      {loading && <TouchableOpacity style={{ padding: 12, backgroundColor: Colors.primary, opacity: 0.5, borderRadius: 10, marginHorizontal: 18, width: '100%', justifyContent: 'center', alignItems: 'center', marginTop: 'auto', height: 48 }} onPress={requestTokenAndLogin}>
+      {loading && <View style={{ padding: 12, backgroundColor: Colors.primary, opacity: 0.5, borderRadius: 10, width: '100%', justifyContent: 'center', alignItems: 'center', height: 48 }}>
         <ActivityIndicator size="small" color="white" />
-      </TouchableOpacity>}
+      </View>}
 
     </SafeAreaView>
   )
@@ -92,7 +105,8 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 40,
     fontWeight: 'bold',
-    marginTop: 'auto',
+    justifyContent: 'flex-start',
+    alignItems: 'flex-start',
   },
   description: {
     fontSize: 14,
@@ -116,7 +130,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
     color: 'gray',
     opacity: 0.4,
-    marginTop: 20
+    marginTop: 'auto'
   },
   separator: {
     marginVertical: 30,
