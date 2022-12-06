@@ -4,21 +4,21 @@ import React, { useEffect, useRef } from "react"
 import { Animated, Easing } from "react-native"
 import Colors from "../constants/Colors"
 import { Text, View } from '../components/Themed'
+import { transform } from "@babel/core"
 
 interface Props {
-  props?: any
   text: string
-
+  style: any
 }
 
-export const GradientText: React.FC<Props> = ({ props, text }) => {
+export const GradientText: React.FC<Props> = ({ style, text }) => {
   const fadeAnim = useRef(new Animated.Value(0)).current
 
   useEffect(() => {
     Animated.timing(fadeAnim, {
       useNativeDriver: true,
       toValue: 1,
-      duration: 40000,
+      duration: 50000,
       easing: Easing.linear
     }).start()
   }, [fadeAnim])
@@ -34,54 +34,38 @@ export const GradientText: React.FC<Props> = ({ props, text }) => {
   return (
 
     <MaskedView
-      style={{ flex: 1, flexDirection: 'row' }}
       maskElement={
         <View
           style={{
-            // Transparent background because mask is based off alpha channel.
             backgroundColor: 'transparent',
-            flex: 1,
-            justifyContent: 'center',
-            alignItems: 'center',
           }}
         >
           <Text
-            style={{
+            style={[{
               fontSize: 40,
-              width: '100%',
-              color: 'black',
               fontWeight: 'bold',
-            }}
+            }]}
           >
-            {'Welcome to Soundcheck.\n'}
+            {text}
           </Text>
-          <Text
-            style={{
-              fontSize: 20,
-              color: 'black',
-              width: '100%',
-              fontWeight: 'bold',
-            }}
-          >
-            {'Play games with your friends, check out your top songs and artists from Spotify, create mix-tapes and playlists!\n\n'}
-          </Text>
-        </View>
+        </View >
       }
     >
-      <Animated.View style={{
+      <Animated.View style={[{
         transform: [
           {
             translateX: fadeAnim.interpolate({
               inputRange: [0, 1],
               outputRange: [-9000, 0]
-            })
-
+            }),
+          },
+          {
+            translateY: 0
           }
         ],
-        flex: 1,
         width: 10000,
-        backgroundColor: 'blue'
-      }}>
+        height: 40,
+      }, style]}>
         <LinearGradient
           colors={ga}
           style={{ flex: 1, width: 10000 }}
@@ -89,7 +73,6 @@ export const GradientText: React.FC<Props> = ({ props, text }) => {
           end={{ x: 1.0, y: 1.0 }}
         />
       </Animated.View>
-      {/* <View style={{ flex: 1, height: '100%', backgroundColor: 'blue' }} /> */}
     </MaskedView >
   )
 }
