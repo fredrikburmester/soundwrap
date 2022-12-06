@@ -6,6 +6,7 @@ import { IUser } from '../../types/auth';
 import { IRoom } from '../../types/room';
 import { ServerEmits, ClientEmits } from '../../types/socket';
 import { SongItem, SpotifyTopTracksResult } from '../../types/spotify';
+import * as fs from 'fs';
 
 const port = 5000;
 const app = express()
@@ -31,16 +32,19 @@ const sendRoomUpdates = (roomCode: string) => {
 	}
 };
 
-const createErrorString = (errorCode: number) => {
-	if(errorCode === 401) {
-		return 'Session expired. Please log in again.';
-	}
+const logMessage = (message: string, type: 'info' | 'error') => {
+	const dateTime = new Date().toLocaleString('sv-SE', {
+		timeZone: 'Europe/Stockholm',
+		});
 
-	if(errorCode === 404) {
-		return 'Room not found';
-	}
+	// Open logs/info.log or logs/error.log
+	const logStream = fs.createWriteStream
+		(`logs/${
+			type === 'info' ? 'info' : 'error'
+		}.log`, { flags: 'a' });
 
-	return 'Unknown error';
+	// Write log
+	logStream.write(`[${dateTime}] ${message}\n`);
 }
 
 const getTopSongsForUser = async (timeRange: string, songsPerUser: number, token: string, user: IUser) => {
@@ -66,8 +70,6 @@ const getTopSongsForUser = async (timeRange: string, songsPerUser: number, token
 };
 
 io.on('connection', (socket) => {
-  console.log('connected')
-
 	socket.on(ClientEmits.REQUEST_TO_JOIN_ROOM, ({roomCode, user, token}: {roomCode: string, user: IUser, token: string}) => {
 		if(!roomCode) {
 			socket.emit(ServerEmits.REQUEST_TO_JOIN_ROOM_REJECTED);
@@ -188,8 +190,9 @@ io.on('connection', (socket) => {
 				rooms.push(newRoom);
 				socket.join(roomCode)
 				socket.emit(ServerEmits.REQUEST_TO_CREATE_ROOM_ACCEPTED, newRoom);
+				logMessage(`${user.name} created room ${roomCode}`, 'info');
 			}).catch((err) => {
-				console.log("error!!",{err});
+				logMessage(err, 'error');
 				socket.emit(ServerEmits.REQUEST_TO_CREATE_ROOM_REJECTED);
 				socket.emit('error', 'Something went wrong', 'Plase log in and out again');
 			});
@@ -228,7 +231,7 @@ io.on('connection', (socket) => {
 			const answer = room.songs[currentSongIndex].player.id;
 			const correct = answer === guess;
 
-			console.log(`${user.name} guessed ${guess} on ${room.songs[currentSongIndex].player.name} for song ${currentSongIndex} and it was ${correct ? 'correct' : 'incorrect'}`);
+			logMessage(`${user.name} guessed ${guess} on ${room.songs[currentSongIndex].player.name} for song ${currentSongIndex} and it was ${correct ? 'correct' : 'incorrect'}`, 'info');
 
 			// If guess already exists AND the new guess differs
 			if (currentGuess && currentGuess.guess !== guess) {
@@ -274,32 +277,44 @@ io.on('connection', (socket) => {
 					}
 					socket.leave(roomCode)
 				}
-				console.log(`${user.name} left ${roomCode} with users ${room?.players.map(user => user.name)}`)
+				logMessage(`${user.name} left ${roomCode} with users ${room?.players.map(user => user.name)}`, 'info')
 			}
 		}
 		sendRoomUpdates(roomCode)
 	})
 
 	socket.on(ClientEmits.START_GAME, ({roomCode}: {roomCode: string}) => {
-		console.log(`Game started in ${roomCode}`)
 		const room = rooms.find(room => room.roomCode === roomCode)
 
 		if (room) {
-				room.gamePosition = 1
+			room.gamePosition = 1
+			logMessage(`${room.host.name} started a game in ${roomCode}`, 'info')
 
-				// Shuffle songs
-				room.songs = shuffle(room.songs)
+			// Shuffle songs
+			room.songs = shuffle(room.songs)
 
-				sendRoomUpdates(roomCode)
+			sendRoomUpdates(roomCode)
 		}
 	})
 
 	socket.on(ClientEmits.NEXT_SONG, ({roomCode}: {roomCode: string}) => {
-		console.log(`Next song in ${roomCode}`)
 		const room = rooms.find(room => room.roomCode === roomCode)
 		if (room) {
 			if(room.currentSongIndex >= room.songs.length - 1) {
 				room.gamePosition = 2
+				logMessage(`Game ended in ${roomCode}`, 'info')
+
+				// save room to file
+				const roomData = JSON.stringify(room, null, 2)
+				fs.writeFile
+				(`./rooms/${roomCode}.json`, roomData, (err) => {
+					if (err) {
+						console.error(err)
+						return
+					}
+					// file written successfully
+				})
+
 			} else {
 				room.currentSongIndex += 1
 			}
@@ -308,8 +323,8 @@ io.on('connection', (socket) => {
 	})
 
   socket.on(ClientEmits.DISCONNECT, () => {
-    console.log('disconnected')
-  })
+		//
+	})
 })
 
 httpServer.listen(port, '0.0.0.0')
