@@ -7,20 +7,21 @@ import { IRoom } from '../../types/room';
 import { ServerEmits, ClientEmits } from '../../types/socket';
 import { SongItem, SpotifyTopTracksResult } from '../../types/spotify';
 import * as fs from 'fs';
+import { ok } from 'assert'
 
 const port = 5000;
 const app = express()
-const httpServer = createServer()
+app.use(cors())
+const httpServer = createServer(app)
 
 const io = new Server(httpServer, {
+	path: '/ws',
 	cors: {
 		origin: '*',
 		methods: ['GET', 'POST'],
 	},
-	path: '/ws',
 })
 
-app.use(cors())
 
 const rooms = [] as IRoom[];
 const errors = [] as string[];
@@ -69,6 +70,10 @@ const getTopSongsForUser = async (timeRange: string, songsPerUser: number, token
 	}
 };
 
+app.get('/', (req, res) => {
+	res.send('Hey this is still in development!');
+});
+
 io.on('connection', (socket) => {
 	socket.on(ClientEmits.REQUEST_TO_JOIN_ROOM, ({roomCode, user, token}: {roomCode: string, user: IUser, token: string}) => {
 		if(!roomCode) {
@@ -79,13 +84,13 @@ io.on('connection', (socket) => {
 
 		if(!user) {
 			socket.emit(ServerEmits.REQUEST_TO_JOIN_ROOM_REJECTED);
-			socket.emit('error', 'No user provided', 'Try logging in again');
+			socket.emit('logout');
 			return;
 		}
 
 		if(!token) {
 			socket.emit(ServerEmits.REQUEST_TO_JOIN_ROOM_REJECTED);
-			socket.emit('error', 'No token provided', 'Try logging in again');
+			socket.emit('logout');
 			return;
 		}
 
@@ -102,12 +107,14 @@ io.on('connection', (socket) => {
 				if(errors.length > 0) {
 					socket.emit(ServerEmits.REQUEST_TO_JOIN_ROOM_REJECTED);
 					socket.emit('error', 'Error getting top songs', errors.pop());
+					socket.emit('logout')
 					return;
 				}
 
 				if(songs.length === 0) {
 					socket.emit(ServerEmits.REQUEST_TO_JOIN_ROOM_REJECTED);
 					socket.emit('error', 'No top songs', 'Do you even use Spotify?');
+					socket.emit('logout')
 					return;
 				}
 
@@ -168,12 +175,14 @@ io.on('connection', (socket) => {
 				if(errors.length !== 0) {
 					socket.emit(ServerEmits.REQUEST_TO_CREATE_ROOM_REJECTED);
 					socket.emit('error', "Error", errors.pop())
+					socket.emit('logout')
 					return;
 				}
 
 				if(songs.length === 0) {
 					socket.emit(ServerEmits.REQUEST_TO_CREATE_ROOM_REJECTED);
 					socket.emit('error', 'No top songs', 'Logging in and out again might help');
+					socket.emit('logout')
 					return;
 				}
 				// Create room
