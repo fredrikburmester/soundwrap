@@ -18,7 +18,6 @@ export default function TabTwoScreen({ navigation }: RootStackScreenProps<'Profi
       showTitle: false,
     }).then(({ type }: { type: any }) => {
       logout()
-
       // how do i close the broswer window?
     })
   }
@@ -35,7 +34,8 @@ export default function TabTwoScreen({ navigation }: RootStackScreenProps<'Profi
 
   return (
     <ScrollView style={{ flex: 1, paddingTop: 18, paddingHorizontal: 18 }} contentInsetAdjustmentBehavior="automatic">
-      <Card iconRight='exit-outline' title="Logout" description='Log out of current Spotify account' onPress={openSpotifyAndLogOut} style={{ backgroundColor: Colors.error }} />
+      <Card iconRight='refresh-outline' title="Refresh account" description='If something went wrong' onPress={logout} style={{ backgroundColor: Colors.primaryDark, marginBottom: 20 }} />
+      <Card iconRight='exit-outline' title="Log out and change account" description={"If you want to switch account,\nyou will need to log in again\n"} onPress={openSpotifyAndLogOut} style={{ backgroundColor: Colors.error, marginBottom: 20 }} />
     </ScrollView>
   )
 }

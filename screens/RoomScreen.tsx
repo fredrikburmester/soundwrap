@@ -35,7 +35,7 @@ export default function RoomScreen({ route, navigation }: RootStackScreenProps<'
   const [guess, setGuess] = useState('')
   const [nonAuthUsers, setNonAuthUsers] = useState<NonAuthUser[]>([])
 
-  const { auth } = useContext(AuthContext) as AuthContextType
+  const { auth, logout } = useContext(AuthContext) as AuthContextType
 
   const connectedRef = useRef(connected)
   connectedRef.current = connected
@@ -173,7 +173,6 @@ export default function RoomScreen({ route, navigation }: RootStackScreenProps<'
       setGamePosition(room.gamePosition)
       setLoading(false)
     })
-
   }, [])
 
   useEffect(() => {

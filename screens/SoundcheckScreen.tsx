@@ -1,12 +1,15 @@
-import { useEffect } from 'react'
+import { useContext, useEffect } from 'react'
 import { ScrollView } from 'react-native'
 import { RootStackScreenProps } from '../types'
 import { Card } from '../components/Card'
 import Colors from '../constants/Colors'
 import useColorScheme from '../hooks/useColorScheme'
+import { AuthContext } from '../context/authContext'
+import { AuthContextType } from '../types/auth'
 
 export default function SoundcheckScreen({ navigation }: RootStackScreenProps<'Soundcheck'>) {
   const colorScheme = useColorScheme()
+  const { auth } = useContext(AuthContext) as AuthContextType
 
   useEffect(() => {
     navigation.setOptions({
@@ -16,6 +19,7 @@ export default function SoundcheckScreen({ navigation }: RootStackScreenProps<'S
       headerBlurEffect: 'dark',
       title: "Let's play!"
     })
+
   }, [])
 
   return (
