@@ -31,6 +31,7 @@
     "expo-linear-gradient": "~12.0.1",
     "expo-linking": "~3.2.3",
     "expo-random": "~13.0.0",
+    "expo-sensors": "~12.0.1",
     "expo-splash-screen": "~0.17.5",
     "expo-status-bar": "~1.4.2",
     "expo-system-ui": "~2.0.1",
