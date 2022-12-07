@@ -17,6 +17,7 @@ import {
   ServerEmits
 } from '../types/socket'
 import { useSpotify } from '../hooks/useSpotify'
+import * as Haptics from 'expo-haptics'
 
 export default function RoomScreen({ route, navigation }: RootStackScreenProps<'Room'>) {
 
@@ -33,7 +34,7 @@ export default function RoomScreen({ route, navigation }: RootStackScreenProps<'
   const [currentSongIndex, setCurrentSongIndex] = useState<number>(1)
   const [gamePosition, setGamePosition] = useState(0)
   const [guess, setGuess] = useState('')
-  const [nonAuthUsers, setNonAuthUsers] = useState<NonAuthUser[]>([])
+  // const [nonAuthUsers, setNonAuthUsers] = useState<NonAuthUser[]>([])
 
   const { auth, logout } = useContext(AuthContext) as AuthContextType
 
@@ -60,6 +61,7 @@ export default function RoomScreen({ route, navigation }: RootStackScreenProps<'
   }
 
   const guessOnPress = (newGuess: string) => {
+    // Takes the user ID as the guess and sends it to the server
     setGuess(newGuess)
     socket.emit(ClientEmits.GUESS, { guess: newGuess, roomCode: roomCode, user: auth.user, currentSongIndex: currentSongIndex })
   }
@@ -102,7 +104,7 @@ export default function RoomScreen({ route, navigation }: RootStackScreenProps<'
 
   useEffect(() => {
     if (route.params?.nonAuthUser) {
-      setNonAuthUsers([...nonAuthUsers, route.params.nonAuthUser])
+      // setNonAuthUsers([...nonAuthUsers, route.params.nonAuthUser])
 
       // convert non-auth user to user for merging with players
       const newUser: IUser = {
@@ -165,13 +167,41 @@ export default function RoomScreen({ route, navigation }: RootStackScreenProps<'
       setSongs(room.songs)
       setIsHost(room.host.id === auth.user?.id)
 
+      // New song
       if (room.currentSongIndex !== currentSongIndexRef.current) {
+
+        // Check if the guess was correct
+        // Vibrate accordingly
+        if (gamePositionRef.current !== 0) {
+          const guess = guessRef.current
+          const correct = room.songs[room.currentSongIndex].player.id
+          if (guess === correct) {
+            Haptics.notificationAsync(
+              Haptics.NotificationFeedbackType.Success
+            )
+          } else {
+            Haptics.notificationAsync(
+              Haptics.NotificationFeedbackType.Error
+            )
+          }
+        }
+
+
         setGuess('')
       }
 
       setCurrentSongIndex(room.currentSongIndex)
       setGamePosition(room.gamePosition)
       setLoading(false)
+
+      if (room.gamePosition === 2) {
+        // Clear all room data
+        setGuess('')
+        setCurrentSongIndex(0)
+        setGamePosition(2)
+        setConnected(false)
+        setIsHost(false)
+      }
     })
   }, [])
 

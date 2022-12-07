@@ -132,7 +132,7 @@ export default function LoginScreen({ navigation }: RootStackScreenProps<'Login'
           ],
         }}
       >
-        <GradientText text='Soundcheck' style={{ marginBottom: 30 }} />
+        <GradientText text='Soundwrap' style={{ marginBottom: 30 }} />
       </Animated.View>
       <Animated.View
         style={{

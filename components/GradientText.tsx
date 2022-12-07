@@ -64,7 +64,7 @@ export const GradientText: React.FC<Props> = ({ style, text }) => {
           }
         ],
         width: 10000,
-        height: 40,
+        height: 50,
       }, style]}>
         <LinearGradient
           colors={ga}

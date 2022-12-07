@@ -71,7 +71,7 @@ export default function HomeScreen({ navigation }: RootStackScreenProps<'Home'>)
 
   return (
     <ScrollView style={{ paddingHorizontal: 18, backgroundColor: Colors.background, paddingTop: 18 }} contentInsetAdjustmentBehavior="automatic">
-      <Card title="Soundcheck" style={{ backgroundColor: Colors.primary, shadowColor: Colors.primaryLight, shadowRadius: 5, shadowOpacity: 1, shadowOffset: { width: 0, height: 1 } }} description="Play the game!" onPress={() => navigation.navigate('Soundcheck')} />
+      <Card title="Play the game" style={{ backgroundColor: Colors.primary, shadowColor: Colors.primaryLight, shadowRadius: 5, shadowOpacity: 1, shadowOffset: { width: 0, height: 1 } }} description="Play the game!" onPress={() => navigation.navigate('Soundcheck')} />
       <View style={{ marginVertical: 20, backgroundColor: 'white', opacity: 0.1, height: 1 }}></View>
       {cards.map(card => (
         <Card iconRight={card.icon} title={card.title} description={card.description} onPress={card.onPress} key={card.id} style={{ marginBottom: 20, backgroundColor: Colors.primaryDark, height: 70 }} />
