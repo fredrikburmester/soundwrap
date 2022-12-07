@@ -16,13 +16,13 @@ interface IEnv {
 
 const ENV: IEnv = {
   development: {
-    wsurl: 'http://192.168.0.103:5000',
+    wsurl: 'http://localhost:5000',
   },
   preview: {
-    wsurl: 'https://soundcheckgame-ts-ws-backend.fdrive.se',
+    wsurl: 'https://ws.soundwrap.app',
   },
   production: {
-    wsurl: 'https://soundcheckgame-ts-ws-backend.fdrive.se',
+    wsurl: 'https://ws.soundwrap.app',
   },
 };
 
