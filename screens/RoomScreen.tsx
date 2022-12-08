@@ -172,19 +172,19 @@ export default function RoomScreen({ route, navigation }: RootStackScreenProps<'
 
         // Check if the guess was correct
         // Vibrate accordingly
-        if (gamePositionRef.current !== 0) {
-          const guess = guessRef.current
-          const correct = room.songs[room.currentSongIndex].player.id
-          if (guess === correct) {
-            Haptics.notificationAsync(
-              Haptics.NotificationFeedbackType.Success
-            )
-          } else {
-            Haptics.notificationAsync(
-              Haptics.NotificationFeedbackType.Error
-            )
-          }
-        }
+        // if (gamePositionRef.current !== 0) {
+        //   const guess = guessRef.current
+        //   const correct = room.songs[room.currentSongIndex].player.id
+        //   if (guess === correct) {
+        //     Haptics.notificationAsync(
+        //       Haptics.NotificationFeedbackType.Success
+        //     )
+        //   } else {
+        //     Haptics.notificationAsync(
+        //       Haptics.NotificationFeedbackType.Error
+        //     )
+        //   }
+        // }
 
 
         setGuess('')
