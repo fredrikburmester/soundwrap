@@ -1,16 +1,15 @@
-import { ActivityIndicator, Pressable, SafeAreaView, StyleSheet, TouchableOpacity } from 'react-native'
+import { ActivityIndicator, Animated, Easing, Pressable, SafeAreaView, StyleSheet, TouchableOpacity } from 'react-native'
 
 import { Text, View } from '../components/Themed'
 import { RootStackScreenProps } from '../types'
 import { AuthContextType, IAuth } from '../types/auth'
 import { AuthContext } from '../context/authContext'
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useEffect, useRef, useState } from 'react'
 import * as WebBrowser from 'expo-web-browser'
 import { makeRedirectUri, ResponseType, useAuthRequest } from 'expo-auth-session'
 import Colors from '../constants/Colors'
 import * as Haptics from 'expo-haptics'
-
-WebBrowser.maybeCompleteAuthSession()
+import { GradientText } from '../components/GradientText'
 
 // Endpoint
 const discovery = {
@@ -21,6 +20,58 @@ const discovery = {
 export default function LoginScreen({ navigation }: RootStackScreenProps<'Login'>) {
   const { login } = useContext(AuthContext) as AuthContextType
   const [loading, setLoading] = useState(false)
+  const fadeAnim = useRef(new Animated.Value(0)).current
+  const slideAnim = useRef(new Animated.Value(-400)).current
+  const slideAnim2 = useRef(new Animated.Value(-800)).current
+  const slideAnim3 = useRef(new Animated.Value(-1600)).current
+  const slideAnim4 = useRef(new Animated.Value(200)).current
+
+  useEffect(() => {
+    Animated.timing(slideAnim, {
+      toValue: 0,
+      duration: 1500,
+      useNativeDriver: true,
+      easing: Easing.out(Easing.exp),
+      delay: 500
+    }).start()
+    Animated.timing(slideAnim2, {
+      toValue: 0,
+      duration: 1500,
+      useNativeDriver: true,
+      easing: Easing.out(Easing.exp),
+      delay: 500
+    }).start()
+    Animated.timing(slideAnim3, {
+      toValue: 0,
+      duration: 1500,
+      useNativeDriver: true,
+      easing: Easing.out(Easing.exp),
+      delay: 500
+    }).start()
+    Animated.timing(slideAnim4, {
+      toValue: 0,
+      duration: 1500,
+      useNativeDriver: true,
+      easing: Easing.out(Easing.exp),
+      delay: 1000
+    }).start()
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 1500,
+      useNativeDriver: true,
+      easing: Easing.out(Easing.exp),
+      delay: 2000
+    }).start()
+  }, [slideAnim, slideAnim2, slideAnim3, slideAnim4, fadeAnim])
+
+  // useEffect(() => {
+  //   Animated.timing(scaleAnim, {
+  //     toValue: 1,
+  //     duration: 1000,
+  //     useNativeDriver: true
+  //   }).start()
+  // }, [scaleAnim])
+
 
   const requestTokenAndLogin = async () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
@@ -36,6 +87,7 @@ export default function LoginScreen({ navigation }: RootStackScreenProps<'Login'
     redirectUri: makeRedirectUri({
       scheme: 'soundcheckgame',
     }),
+
   },
     discovery
   )
@@ -52,33 +104,91 @@ export default function LoginScreen({ navigation }: RootStackScreenProps<'Login'
   }, [response])
 
   return (
-    <SafeAreaView style={{ flex: 1, alignItems: 'center', margin: 18, marginBottom: 48 }}>
-      <Text style={styles.title}>Soundcheck</Text>
-      <Text style={styles.description}>Soundcheck is a game to play with your friends! Create a room, invite your friends, and guess each others favorite songs. Listen to music, chat and have fun together!
-        After the game you can create a mix-tape of all your favorite songs, perfect for a party!</Text>
-      <Text style={styles.description2}>Login with Spotify to get started!</Text>
-      {/* <Button size='lg' title="AUTHENTICATE" onPress={() => requestTokenAndLogin()} disabled={loading} /> */}
-      {/* {!loading && <TouchableOpacity style={{ padding: 12, backgroundColor: Colors.primary, borderRadius: 10, marginHorizontal: 18, width: '100%', justifyContent: 'center', alignItems: 'center', marginTop: 'auto', height: 48 }} onPress={requestTokenAndLogin}>
-        <Text style={{ fontWeight: 'bold' }}>Login</Text>
-      </TouchableOpacity>} */}
-      {!loading && <Pressable 
-      style={({ pressed }) => 
-      [{ padding: 12, 
-        backgroundColor: Colors.primary, 
-        borderRadius: 10, 
-        marginHorizontal: 18, 
-        width: '100%', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        marginTop: 'auto', 
-        height: 48 }, pressed ? {opacity: 0.5} : {}]} 
-        onPress={requestTokenAndLogin} 
+    <SafeAreaView style={{ flex: 1, marginBottom: 48, margin: 17 }}>
+      <Animated.View
+        style={[{
+          transform: [
+            {
+              translateX: slideAnim3
+            },
+          ],
+        }, { marginTop: 'auto' }]}
+      >
+        <Text style={{
+          fontSize: 40,
+          fontWeight: 'bold',
+          marginTop: 'auto',
+          marginBottom: -10
+        }}>
+          Welcome to
+        </Text>
+      </Animated.View>
+      <Animated.View
+        style={{
+          transform: [
+            {
+              translateX: slideAnim2
+            },
+          ],
+        }}
+      >
+        <GradientText text='Soundwrap' style={{ marginBottom: 30 }} />
+      </Animated.View>
+      <Animated.View
+        style={{
+          transform: [
+            {
+              translateX: slideAnim
+            },
+          ],
+        }}
+      >
+        <Text
+          style={{
+            fontSize: 20,
+            fontWeight: 'bold',
+            color: 'white'
+          }}
         >
-        <Text style={{ fontWeight: 'bold' }}>Login</Text>
-      </Pressable>}
-      {loading && <TouchableOpacity style={{ padding: 12, backgroundColor: Colors.primary, opacity: 0.5, borderRadius: 10, marginHorizontal: 18, width: '100%', justifyContent: 'center', alignItems: 'center', marginTop: 'auto', height: 48 }} onPress={requestTokenAndLogin}>
+          {'Check out your top songs and artists from Spotify, create mix-tapes and playlists!\n\nPlay and win over your friends by guessing their favourite songs!'}
+        </Text>
+      </Animated.View>
+      <Animated.View
+        style={[{
+          opacity: fadeAnim,
+        }, { marginTop: 'auto' }]}
+      >
+        <Text style={[styles.description3]}>This app is not affiliated with Spotify AB or any of it's partners in any way</Text>
+      </Animated.View>
+      <Animated.View
+        style={[{
+          transform: [
+            {
+              translateY: slideAnim4
+            },
+          ],
+        }]}
+      >
+        {!loading && <Pressable
+          style={({ pressed }) =>
+            [{
+              padding: 12,
+              backgroundColor: Colors.primary,
+              borderRadius: 10,
+              justifyContent: 'center',
+              alignItems: 'center',
+              width: '100%',
+              height: 48
+            }, pressed ? { opacity: 0.5 } : {}]}
+          onPress={requestTokenAndLogin}
+        >
+          <Text style={{ fontWeight: 'bold' }}>Login with Spotify</Text>
+        </Pressable>}
+      </Animated.View>
+      {loading && <View style={{ padding: 12, backgroundColor: Colors.primary, opacity: 0.5, borderRadius: 10, width: '100%', justifyContent: 'center', alignItems: 'center', height: 48 }}>
         <ActivityIndicator size="small" color="white" />
-      </TouchableOpacity>}
+      </View>}
+
     </SafeAreaView>
   )
 }
@@ -93,12 +203,12 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 40,
     fontWeight: 'bold',
-    marginBottom: 20,
-    marginTop: 'auto'
+    justifyContent: 'flex-start',
+    alignItems: 'flex-start',
   },
   description: {
     fontSize: 14,
-    textAlign: 'center',
+    textAlign: 'start',
     marginBottom: 20,
     marginHorizontal: 20,
   },
@@ -107,7 +217,18 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 20,
     marginHorizontal: 20,
-    color: '#1DB753',
+    color: 'gray',
+    marginTop: 'auto',
+    opacity: 0.5
+  },
+  description3: {
+    fontSize: 11,
+    textAlign: 'center',
+    marginBottom: 20,
+    marginHorizontal: 20,
+    color: 'gray',
+    opacity: 0.4,
+    marginTop: 'auto'
   },
   separator: {
     marginVertical: 30,

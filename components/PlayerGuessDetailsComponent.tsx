@@ -2,18 +2,10 @@ import { StatusBar } from 'expo-status-bar'
 import React, { useContext, useEffect, useRef, useState } from 'react'
 import { ActivityIndicator, ImageBackground, Platform, ScrollView, StyleSheet, Switch } from 'react-native'
 
-import EditScreenInfo from '../components/EditScreenInfo'
 import { Text, View } from '../components/Themed'
-import AsyncStorage from '@react-native-async-storage/async-storage'
 import Colors from '../constants/Colors'
-import { TextInputComponent } from './TextInputComponent'
 import { AuthContext } from '../context/authContext'
 import { AuthContextType, NonAuthUser } from '../types/auth'
-import { Item, Tracks2 } from '../types/spotify'
-import { Card } from './Card'
-import SearchBar from 'react-native-platform-searchbar'
-import { searchForTracks } from '../hooks/useSpotify'
-import { ButtonComponent } from './ButtonComponent'
 import { RootStackScreenProps } from '../types'
 
 export default function PlayerGuessDetailsComponent({ navigation, route }: RootStackScreenProps<'PlayerGuessDetails'>) {
@@ -28,7 +20,7 @@ export default function PlayerGuessDetailsComponent({ navigation, route }: RootS
         backgroundColor: Colors.background,
       },
     })
-    
+
   }, [])
 
   const getUserGuessForSong = (index: number) => {
@@ -46,8 +38,8 @@ export default function PlayerGuessDetailsComponent({ navigation, route }: RootS
       <ScrollView>
         {songs.map((song, index) => {
           return (
-            <View style={{flexDirection: 'row'}} key={index}>
-              <Text style={{fontSize: 40, color: Colors.primary, marginRight: 20}}>{index + 1 }</Text>
+            <View style={{ flexDirection: 'row' }} key={index}>
+              <Text style={{ fontSize: 40, color: Colors.primary, marginRight: 20 }}>{index + 1}</Text>
               <ImageBackground key={index} source={{ uri: song.song.album.images[0].url }} imageStyle={{ borderRadius: 10, opacity: 0.3 }} style={{ width: '93%', marginVertical: 10, borderRadius: 10, overflow: 'hidden' }}>
                 <View key={index} style={{ marginVertical: 10, backgroundColor: 'transparent', paddingVertical: 10, paddingHorizontal: 20 }}>
                   <Text style={{ color: 'white', fontSize: 20, fontWeight: 'bold', width: '90%' }}>{song.song.name}</Text>

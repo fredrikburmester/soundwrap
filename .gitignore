@@ -12,3 +12,7 @@ web-build/
 
 # macOS
 .DS_Store
+
+server/logs
+server/rooms
+ios/Soundcheck/Supporting/Expo.plist

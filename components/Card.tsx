@@ -12,11 +12,12 @@ interface Props {
   color?: 'error' | string
   onPress: () => void
   style?: any
-  icon?: string
+  iconRight?: string
+  iconLeft?: string
   onAdd?: () => void
 }
 
-export const Card: React.FC<Props> = ({ title, description, onPress, color, style, icon }) => {
+export const Card: React.FC<Props> = ({ title, description, onPress, color, style, iconRight, iconLeft }) => {
   const colorScheme = useColorScheme()
 
   let _color = Colors.primary
@@ -54,12 +55,14 @@ export const Card: React.FC<Props> = ({ title, description, onPress, color, styl
   return (
     <TouchableOpacity onPress={click}>
       <View style={[styles.card, { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }, style]}>
+        { /* @ts-ignore */}
+        {iconLeft && <Ionicons name={iconLeft} size={24} color="white" style={{ opacity: 0.8, marginRight: 12 }} />}
         <View style={{ flexDirection: 'column', width: '80%' }}>
           <Text style={styles.cardDescription}>{description}</Text>
           <Text style={styles.cardTitle}>{title}</Text>
         </View>
         { /* @ts-ignore */}
-        <Ionicons name={icon ? icon : 'chevron-forward-outline'} size={24} color="white" style={{ opacity: 0.8 }} />
+        <Ionicons name={iconRight ? iconRight : 'chevron-forward-outline'} size={24} color="white" style={{ opacity: 0.8 }} />
       </View>
     </TouchableOpacity>
   )

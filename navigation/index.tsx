@@ -22,6 +22,7 @@ import SearchScreen from '../screens/SeachScreen'
 import AddNonAuthPlayerModal from '../components/AddNonAuthPlayerModal'
 import PlayerGuessDetailsComponent from '../components/PlayerGuessDetailsComponent'
 import { useSpotifyAuth } from '../hooks/useSpotifyAuth'
+import socket from '../utils/socket'
 
 type Props = {
   colorScheme: ColorSchemeName
@@ -51,10 +52,10 @@ const Stack = createNativeStackNavigator<RootStackParamList>()
 
 function RootNavigator() {
   const { auth, logout } = useContext(AuthContext) as AuthContextType
-  const appState = useRef(AppState.currentState);
-  const [appStateVisible, setAppStateVisible] = useState(appState.current);
+  const appState = useRef(AppState.currentState)
+  const [appStateVisible, setAppStateVisible] = useState(appState.current)
   const { getTokenStatus } = useSpotifyAuth()
-  
+
   useEffect(() => {
     const subscription = AppState.addEventListener("change", async nextAppState => {
       if (
@@ -68,14 +69,19 @@ function RootNavigator() {
         }
       }
 
-      appState.current = nextAppState;
-      setAppStateVisible(appState.current);
-    });
+      appState.current = nextAppState
+      setAppStateVisible(appState.current)
+    })
+
+    socket.on('logout', () => {
+      console.log('logout')
+      logout()
+    })
 
     return () => {
-      subscription.remove();
-    };
-  }, []);
+      subscription.remove()
+    }
+  }, [])
 
   if (!auth.authenticated) {
     return (

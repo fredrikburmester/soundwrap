@@ -1,20 +1,10 @@
 import React, { useContext, useEffect, useRef, useState } from 'react'
 import { StyleSheet, Image, FlatList, TouchableOpacity, ScrollView, TextInput, Switch, Button, Alert, Pressable, TouchableHighlight, RefreshControl, ActivityIndicator } from 'react-native'
 import { AuthContextType, IAuth, IGuess, IUser, NonAuthUser } from '../types/auth'
-import EditScreenInfo from '../components/EditScreenInfo'
 import { Text, View } from '../components/Themed'
 import { AuthContext } from '../context/authContext'
 import { RootStackParamList, RootStackScreenProps } from '../types'
-import { io } from "socket.io-client"
-import { Card } from '../components/Card'
 import Colors from '../constants/Colors'
-import useColorScheme from '../hooks/useColorScheme'
-import { SafeAreaView } from 'react-native-safe-area-context'
-import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { useHeaderHeight } from '@react-navigation/elements'
-import { SwitchComponent } from '../components/SwitchComponent'
-import { Picker } from '@react-native-picker/picker'
-import Toast from 'react-native-toast-message'
 import socket from '../utils/socket'
 import { Ionicons } from '@expo/vector-icons'
 import { IRoom } from '../types/room'
@@ -27,12 +17,12 @@ import {
   ServerEmits
 } from '../types/socket'
 import { useSpotify } from '../hooks/useSpotify'
+import * as Haptics from 'expo-haptics'
 
 export default function RoomScreen({ route, navigation }: RootStackScreenProps<'Room'>) {
 
   const createRoom = route.params.createRoom as boolean
 
-  const colorScheme = useColorScheme()
   const [loading, setLoading] = useState(false)
   const [songsPerUser, setSongsPerUser] = useState(route.params.songsPerUser)
   const [roomCode, setRoomCode] = useState(route.params.roomCode)
@@ -44,10 +34,9 @@ export default function RoomScreen({ route, navigation }: RootStackScreenProps<'
   const [currentSongIndex, setCurrentSongIndex] = useState<number>(1)
   const [gamePosition, setGamePosition] = useState(0)
   const [guess, setGuess] = useState('')
-  const [nonAuthUsers, setNonAuthUsers] = useState<NonAuthUser[]>([])
-  const [playersWhoGuessed, setPlayersWhoGuessed] = useState<IUser[]>([])
+  // const [nonAuthUsers, setNonAuthUsers] = useState<NonAuthUser[]>([])
 
-  const { auth } = useContext(AuthContext) as AuthContextType
+  const { auth, logout } = useContext(AuthContext) as AuthContextType
 
   const connectedRef = useRef(connected)
   connectedRef.current = connected
@@ -60,7 +49,7 @@ export default function RoomScreen({ route, navigation }: RootStackScreenProps<'
 
   const guessRef = useRef(guess)
   guessRef.current = guess
-  
+
   const currentSongIndexRef = useRef(currentSongIndex)
   currentSongIndexRef.current = currentSongIndex
 
@@ -72,6 +61,7 @@ export default function RoomScreen({ route, navigation }: RootStackScreenProps<'
   }
 
   const guessOnPress = (newGuess: string) => {
+    // Takes the user ID as the guess and sends it to the server
     setGuess(newGuess)
     socket.emit(ClientEmits.GUESS, { guess: newGuess, roomCode: roomCode, user: auth.user, currentSongIndex: currentSongIndex })
   }
@@ -114,7 +104,7 @@ export default function RoomScreen({ route, navigation }: RootStackScreenProps<'
 
   useEffect(() => {
     if (route.params?.nonAuthUser) {
-      setNonAuthUsers([...nonAuthUsers, route.params.nonAuthUser])
+      // setNonAuthUsers([...nonAuthUsers, route.params.nonAuthUser])
 
       // convert non-auth user to user for merging with players
       const newUser: IUser = {
@@ -174,18 +164,45 @@ export default function RoomScreen({ route, navigation }: RootStackScreenProps<'
 
     socket.on(ServerEmits.ROOM_UPDATED, (room: IRoom) => {
       setPlayers(room.players)
-      setGamePosition(room.gamePosition)
       setSongs(room.songs)
       setIsHost(room.host.id === auth.user?.id)
 
+      // New song
       if (room.currentSongIndex !== currentSongIndexRef.current) {
+
+        // Check if the guess was correct
+        // Vibrate accordingly
+        if (gamePositionRef.current !== 0) {
+          const guess = guessRef.current
+          const correct = room.songs[room.currentSongIndex].player.id
+          if (guess === correct) {
+            Haptics.notificationAsync(
+              Haptics.NotificationFeedbackType.Success
+            )
+          } else {
+            Haptics.notificationAsync(
+              Haptics.NotificationFeedbackType.Error
+            )
+          }
+        }
+
+
         setGuess('')
       }
-      
-      setCurrentSongIndex(room.currentSongIndex)
-      setLoading(false)
-    })
 
+      setCurrentSongIndex(room.currentSongIndex)
+      setGamePosition(room.gamePosition)
+      setLoading(false)
+
+      if (room.gamePosition === 2) {
+        // Clear all room data
+        setGuess('')
+        setCurrentSongIndex(0)
+        setGamePosition(2)
+        setConnected(false)
+        setIsHost(false)
+      }
+    })
   }, [])
 
   useEffect(() => {
@@ -199,8 +216,6 @@ export default function RoomScreen({ route, navigation }: RootStackScreenProps<'
         backgroundColor: Colors.background,
       },
       headerShadowVisible: false,
-      // headerBlurEffect: 'dark',
-      // headerTransparent: true,
       headerRight: () => (
         <>
           {gamePositionRef.current === 0 && <Ionicons name="close" size={24} color="red" style={{ marginRight: 0 }} onPress={() => openLeaveRoomAlert()} />}
@@ -246,9 +261,9 @@ export default function RoomScreen({ route, navigation }: RootStackScreenProps<'
             color: Colors.primary,
           }}>{roomCode}</Text>
           <Text style={{ fontStyle: 'italic' }}>
-            {isHost && 'Invite others to play! While wating, write something in the chat! ' }
-            {!isHost && 'Waiting for host to start the game...' }
-          <Text style={{ color: Colors.primary }}>Who's gonna win?</Text></Text>
+            {isHost && "Other users can join the game by entering the room code. Start the game when everyone's ready! "}
+            {!isHost && 'Waiting for host to start the game... Invite others by sharing the room code with them! '}
+            <Text style={{ color: Colors.primary }}>Who's gonna win?</Text></Text>
           {/* <View style={{ marginTop: 10, opacity: 1 }}>
             <ButtonComponent size='sm' title="Add non-spotify player" onPress={addNonAuthPlayer} style={{ width: 200, backgroundColor: Colors.backgroundDark }} />
           </View> */}
@@ -290,7 +305,8 @@ export default function RoomScreen({ route, navigation }: RootStackScreenProps<'
           </TouchableHighlight>
         )}
         <View style={{ height: 90, marginTop: 0 }}>
-          <SpotifyPlayer songUri={songs[currentSongIndex].song.uri} />
+          {songs && songs.length > currentSongIndex &&
+            <SpotifyPlayer songUri={songs[currentSongIndex].song.uri} />}
         </View>
         {isHost && !loading && <View style={{ marginHorizontal: 20, marginVertical: 20 }}>
           <ButtonComponent title="Next song" onPress={nextSong} />
