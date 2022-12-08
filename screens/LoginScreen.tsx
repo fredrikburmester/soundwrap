@@ -158,7 +158,7 @@ export default function LoginScreen({ navigation }: RootStackScreenProps<'Login'
           opacity: fadeAnim,
         }, { marginTop: 'auto' }]}
       >
-        <Text style={[styles.description3]}>This app is not affiliated with Spotify AB or any of it's partners in any way</Text>
+        <Text style={[styles.description3]}>This app is not affiliated with Spotify AB or any of its partners in any way</Text>
       </Animated.View>
       <Animated.View
         style={[{
