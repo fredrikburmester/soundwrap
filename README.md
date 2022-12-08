@@ -9,7 +9,7 @@
 
 [Soundwrap Status Website](http://status.soundwrap.app)
 
-![Soundwrap](./assets/images/soundcheck-promotion.jpg)
+![Soundwrap](./assets/images/github-image.jpeg)
 
 **If you want to support this app and what I do:** 
 
