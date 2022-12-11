@@ -28,7 +28,6 @@ export default function RoomScreen({ route, navigation }: RootStackScreenProps<'
   const [songsPerUser, setSongsPerUser] = useState(route.params.songsPerUser)
   const [roomCode, setRoomCode] = useState(route.params.roomCode)
   const [timeRange, setTimeRange] = useState(route.params.timeRange)
-  const [connected, setConnected] = useState(false)
   const [songs, setSongs] = useState<{ song: SongItem, player: IUser }[]>([])
   const [isHost, setIsHost] = useState<boolean>(false)
   const [players, setPlayers] = useState<IUser[]>([])
@@ -38,9 +37,6 @@ export default function RoomScreen({ route, navigation }: RootStackScreenProps<'
   // const [nonAuthUsers, setNonAuthUsers] = useState<NonAuthUser[]>([])
 
   const { auth, logout } = useContext(AuthContext) as AuthContextType
-
-  const connectedRef = useRef(connected)
-  connectedRef.current = connected
 
   const hostRef = useRef(isHost)
   hostRef.current = isHost
@@ -54,6 +50,9 @@ export default function RoomScreen({ route, navigation }: RootStackScreenProps<'
   const currentSongIndexRef = useRef(currentSongIndex)
   currentSongIndexRef.current = currentSongIndex
 
+  const localsocket = useRef(socket)
+  localsocket.current = socket
+
   const { createAndAddSongsToPlaylist } = useSpotify()
 
   if (!auth.user) {
@@ -64,11 +63,11 @@ export default function RoomScreen({ route, navigation }: RootStackScreenProps<'
   const guessOnPress = (newGuess: string) => {
     // Takes the user ID as the guess and sends it to the server
     setGuess(newGuess)
-    socket.emit(ClientEmits.GUESS, { guess: newGuess, roomCode: roomCode, user: auth.user, currentSongIndex: currentSongIndex })
+    localsocket.current.emit(ClientEmits.GUESS, { guess: newGuess, roomCode: roomCode, user: auth.user, currentSongIndex: currentSongIndex })
   }
 
   const leaveRoom = () => {
-    socket.emit(ClientEmits.LEAVE_ROOM, { roomCode: roomCode, user: auth.user })
+    localsocket.current.emit(ClientEmits.LEAVE_ROOM, { roomCode: roomCode, user: auth.user })
     navigation.navigate('Home')
   }
 
@@ -99,149 +98,11 @@ export default function RoomScreen({ route, navigation }: RootStackScreenProps<'
     createAndAddSongsToPlaylist(auth.token, newPlaylistName, songs.map((song: any) => song.song))
   }
 
-  const generateRandomId = () => {
-    return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
-  }
-
-  useEffect(() => {
-    if (route.params?.nonAuthUser) {
-      // setNonAuthUsers([...nonAuthUsers, route.params.nonAuthUser])
-
-      // convert non-auth user to user for merging with players
-      const newUser: IUser = {
-        id: generateRandomId(),
-        name: route.params.nonAuthUser.name,
-        avatar: 'https://picsum.photos/200',
-        score: 0,
-        guesses: []
-      }
-
-      socket.emit('addNonAuthUser', { roomCode: roomCode, nonAuthUser: newUser, songs: route.params.nonAuthUser.songs })
-
-      setPlayers([...players, newUser])
-    }
-  }, [route.params?.nonAuthUser])
-
-  useEffect(() => {
-    if (createRoom) {
-      socket.emit('requestToCreateRoom', {
-        roomCode: roomCode,
-        user: auth.user,
-        token: auth.token,
-        songsPerUser: songsPerUser,
-        timeRange: timeRange
-      })
-    } else {
-      socket.emit(ClientEmits.REQUEST_TO_JOIN_ROOM, {
-        roomCode: roomCode,
-        user: auth.user,
-        token: auth.token
-      })
-    }
-
-    socket.on(ServerEmits.REQUEST_TO_CREATE_ROOM_ACCEPTED, (room: IRoom) => {
-      setConnected(true)
-      setIsHost(true)
-      setSongs(room.songs)
-      setPlayers(room.players)
-    })
-
-    socket.on(ServerEmits.REQUEST_TO_CREATE_ROOM_REJECTED, () => {
-      navigation.navigate('Home')
-    })
-
-    socket.on(ServerEmits.REQUEST_TO_JOIN_ROOM_ACCEPTED, (room: IRoom) => {
-      setIsHost(false)
-      setSongs(room.songs)
-      setPlayers(room.players)
-      setCurrentSongIndex(room.currentSongIndex)
-      setGamePosition(room.gamePosition)
-      setConnected(true)
-    })
-
-    socket.on(ServerEmits.REQUEST_TO_JOIN_ROOM_REJECTED, () => {
-      navigation.navigate('Home')
-    })
-
-    socket.on(ServerEmits.ROOM_UPDATED, (room: IRoom) => {
-      setPlayers(room.players)
-      setSongs(room.songs)
-      setIsHost(room.host.id === auth.user?.id)
-
-      // New song
-      if (room.currentSongIndex !== currentSongIndexRef.current) {
-
-        // Check if the guess was correct
-        // Vibrate accordingly
-        // if (gamePositionRef.current !== 0) {
-        //   const guess = guessRef.current
-        //   const correct = room.songs[room.currentSongIndex].player.id
-        //   if (guess === correct) {
-        //     Haptics.notificationAsync(
-        //       Haptics.NotificationFeedbackType.Success
-        //     )
-        //   } else {
-        //     Haptics.notificationAsync(
-        //       Haptics.NotificationFeedbackType.Error
-        //     )
-        //   }
-        // }
-
-        setGuess('')
-      }
-
-      setCurrentSongIndex(room.currentSongIndex)
-      setGamePosition(room.gamePosition)
-      setLoading(false)
-
-      if (room.gamePosition === 2) {
-        // Clear all room data
-        setGuess('')
-        setCurrentSongIndex(0)
-        setGamePosition(2)
-        setConnected(false)
-        setIsHost(false)
-      }
-    })
-  }, [socket])
-
-  // useFocusEffect(
-  //   useCallback(() => {
-  //     socket.connect()
-
-  //     return () => {
-  //       console.log('leaving room')
-  //       socket.emit(ClientEmits.LEAVE_ROOM, { roomCode: roomCode, user: auth.user })
-  //       socket.disconnect()
-  //     }
-  //   }, [])
-  // )
-
-  useEffect(() => {
-    navigation.setOptions({
-      title: ``,
-      headerBackTitleVisible: true,
-      headerBackTitle: 'Back',
-      headerBackVisible: true,
-      headerLargeTitle: false,
-      headerStyle: {
-        backgroundColor: Colors.background,
-      },
-      headerShadowVisible: false,
-      headerRight: () => (
-        <>
-          {gamePositionRef.current === 0 && <Ionicons name="close" size={24} color="red" style={{ marginRight: 0 }} onPress={() => openLeaveRoomAlert()} />}
-          {gamePositionRef.current === 2 && <Ionicons name="add" size={24} color="white" style={{ marginRight: 0 }} onPress={() => openSaveSongsAlert()} />}
-        </>
-      ),
-    })
-  }, [gamePositionRef.current])
-
   const onRefresh = () => {
-    if (socket.disconnected) {
-      socket.connect()
+    if (localsocket.current.disconnected) {
+      localsocket.current.connect()
     }
-    socket.emit('requestRoomUpdate', roomCode)
+    localsocket.current.emit('requestRoomUpdate', roomCode)
   }
 
   const openGuessDetailModal = (user: IUser) => {
@@ -279,7 +140,152 @@ export default function RoomScreen({ route, navigation }: RootStackScreenProps<'
 
   const nextSong = () => {
     setLoading(true)
-    socket.emit('nextSong', { roomCode: roomCode })
+    localsocket.current.emit('nextSong', { roomCode: roomCode })
+  }
+
+  const requestRoomUpdate = () => {
+    localsocket.current.emit('requestRoomUpdate', roomCode)
+  }
+
+  // useEffect(() => {
+  //   if (route.params?.nonAuthUser) {
+  //     // setNonAuthUsers([...nonAuthUsers, route.params.nonAuthUser])
+  //     // convert non-auth user to user for merging with players
+  //     const newUser: IUser = {
+  //       id: generateRandomId(),
+  //       name: route.params.nonAuthUser.name,
+  //       avatar: 'https://picsum.photos/200',
+  //       score: 0,
+  //       guesses: []
+  //     }
+  //     localsocket.current.emit('addNonAuthUser', { roomCode: roomCode, nonAuthUser: newUser, songs: route.params.nonAuthUser.songs })
+  //     setPlayers([...players, newUser])
+  //   }
+  // }, [route.params?.nonAuthUser])
+
+  useEffect(() => {
+    localsocket.current.connect()
+    setHeader(0)
+
+    if (createRoom) {
+      localsocket.current.emit(ClientEmits.REQUEST_TO_CREATE_ROOM, {
+        roomCode: roomCode,
+        user: auth.user,
+        token: auth.token,
+        songsPerUser: songsPerUser,
+        timeRange: timeRange
+      })
+    } else {
+      localsocket.current.emit(ClientEmits.REQUEST_TO_JOIN_ROOM, {
+        roomCode: roomCode,
+        user: auth.user,
+        token: auth.token
+      })
+    }
+
+    localsocket.current.on(ServerEmits.REQUEST_TO_CREATE_ROOM_ACCEPTED, (room: IRoom) => {
+      setIsHost(true)
+      setSongs(room.songs)
+      setPlayers(room.players)
+    })
+
+    localsocket.current.on(ServerEmits.REQUEST_TO_CREATE_ROOM_REJECTED, () => {
+      navigation.navigate('Home')
+    })
+
+    localsocket.current.on(ServerEmits.REQUEST_TO_JOIN_ROOM_ACCEPTED, (room: IRoom) => {
+      setIsHost(false)
+      setSongs(room.songs)
+      setPlayers(room.players)
+      setCurrentSongIndex(room.currentSongIndex)
+      setGamePosition(room.gamePosition)
+    })
+
+    localsocket.current.on(ServerEmits.REQUEST_TO_JOIN_ROOM_REJECTED, () => {
+      navigation.navigate('Home')
+    })
+
+    localsocket.current.on(ServerEmits.ROOM_UPDATED, (room: IRoom) => {
+      if (room.roomCode !== roomCode) {
+        return
+      }
+
+      console.log(`Room updated: ${roomCode}, Game position: ${room.gamePosition}, Q: ${room.currentSongIndex}`)
+      setHeader(room.gamePosition)
+      setPlayers(room.players)
+      setSongs(room.songs)
+      setIsHost(room.host.id === auth.user?.id)
+
+      if (room.currentSongIndex !== currentSongIndexRef.current) {
+        // Check if the guess was correct
+        // Vibrate accordingly
+        // if (gamePositionRef.current !== 0) {
+        //   const guess = guessRef.current
+        //   const correct = room.songs[room.currentSongIndex].player.id
+        //   if (guess === correct) {
+        //     Haptics.notificationAsync(
+        //       Haptics.NotificationFeedbackType.Success
+        //     )
+        //   } else {
+        //     Haptics.notificationAsync(
+        //       Haptics.NotificationFeedbackType.Error
+        //     )
+        //   }
+        // }
+        setGuess('')
+      }
+
+      setCurrentSongIndex(room.currentSongIndex)
+      setGamePosition(room.gamePosition)
+      setLoading(false)
+
+      if (room.gamePosition === 2) {
+        // Clear all room data
+        setGuess('')
+        setCurrentSongIndex(0)
+        setGamePosition(2)
+        setIsHost(false)
+        setHeader(2)
+      }
+    })
+
+    return () => {
+      console.log(`Leaving room: ${roomCode}`)
+      localsocket.current.emit(ClientEmits.LEAVE_ROOM, { roomCode: roomCode, user: auth.user })
+      localsocket.current.off(roomCode)
+    }
+  }, [])
+
+  // useFocusEffect(
+  //   useCallback(() => {
+  //     localsocket.current.connect()
+
+  //     return () => {
+  //       console.log('leaving room')
+  //       localsocket.current.emit(ClientEmits.LEAVE_ROOM, { roomCode: roomCode, user: auth.user })
+  //       localsocket.current.disconnect()
+  //     }
+  //   }, [])
+  // )
+
+  const setHeader = (pos: number) => {
+    navigation.setOptions({
+      title: ``,
+      headerBackTitleVisible: true,
+      headerBackTitle: 'Back',
+      headerBackVisible: true,
+      headerLargeTitle: false,
+      headerStyle: {
+        backgroundColor: Colors.background,
+      },
+      headerShadowVisible: false,
+      headerRight: () => (
+        <>
+          {pos === 0 && <Ionicons name="close" size={24} color="red" style={{ marginRight: 0 }} onPress={() => openLeaveRoomAlert()} />}
+          {pos === 2 && <Ionicons name="add" size={24} color="white" style={{ marginRight: 0 }} onPress={() => openSaveSongsAlert()} />}
+        </>
+      ),
+    })
   }
 
   if (gamePosition === 0) {
