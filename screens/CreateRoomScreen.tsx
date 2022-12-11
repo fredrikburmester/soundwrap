@@ -7,8 +7,11 @@ import { Picker } from '@react-native-picker/picker'
 import Toast from 'react-native-toast-message'
 import { TextInputComponent } from '../components/TextInputComponent'
 import { ButtonComponent } from '../components/ButtonComponent'
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect } from '@react-navigation/native'
 import Colors from '../constants/Colors'
+import { SafeAreaView } from 'react-native-safe-area-context'
+import { useHeaderHeight } from '@react-navigation/elements'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 const generateRandomString = (length: number) => {
   let text = ''
@@ -25,44 +28,10 @@ export default function CreateRoomScreen({ navigation }: RootStackScreenProps<'C
   const [roomCode, setRoomCode] = useState<string>('')
   const [songsPerUser, setSongsPerUser] = useState<number>(2)
   const [timeRange, setTimeRange] = useState<string>('medium_term')
+  const [name, setName] = useState<string>('')
 
-  const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: Colors[colorScheme].background,
-    },
-    title: {
-      fontSize: 30,
-      fontWeight: 'bold',
-      marginBottom: 20,
-    },
-    avatar: {
-      width: 100,
-      height: 100,
-      borderRadius: 50,
-      marginVertical: 20,
-      borderColor: Colors[colorScheme].primary,
-      borderStyle: 'solid',
-      borderWidth: 2,
-    },
-  })
-
-  useEffect(() => {
-    navigation.setOptions({
-      title: 'Create room',
-      headerBackTitle: 'Back',
-      headerStyle: {
-        backgroundColor: Colors.background,
-      },
-      headerBlurEffect: 'dark',
-    })
-  }, [])
-
-  useFocusEffect(
-    React.useCallback(() => {
-      setRoomCode(generateRandomString(4))
-    }, [])
-  );
+  const insets = useSafeAreaInsets()
+  const headerHeight = useHeaderHeight()
 
   const showToast = (type: 'success' | 'error' | 'info', text1: string, text2: string) => {
     Toast.show({
@@ -73,14 +42,46 @@ export default function CreateRoomScreen({ navigation }: RootStackScreenProps<'C
   }
 
   const createRoom = () => {
-    navigation.navigate('Room', { roomCode: roomCode, songsPerUser: songsPerUser, timeRange: timeRange, createRoom: true, nonAuthUser: undefined })
+    navigation.navigate('Room', { roomCode: roomCode, songsPerUser: songsPerUser, timeRange: timeRange, createRoom: true, nonAuthUser: undefined, name: name })
   }
 
+  useEffect(() => {
+    navigation.setOptions({
+      headerTransparent: false,
+      title: 'Create room',
+      headerBackTitle: 'Back',
+      headerStyle: {
+        backgroundColor: Colors.background,
+      },
+      headerRight: () => (
+        <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}
+          onPress={createRoom}
+        >
+          <Text style={{ fontSize: 17, marginRight: 10, color: '#007AFF' }}>Create</Text>
+        </TouchableOpacity>
+      ),
+      headerBlurEffect: 'dark',
+    })
+  }, [createRoom])
+
+  useFocusEffect(
+    React.useCallback(() => {
+      setRoomCode(generateRandomString(4))
+    }, [])
+  )
+
   return (
-    <ScrollView style={{ flex: 1, paddingHorizontal: 18, backgroundColor: Colors[colorScheme].background, paddingTop: 18 }} contentInsetAdjustmentBehavior="automatic">
+    <ScrollView style={{ backgroundColor: 'transparent', paddingHorizontal: 20, paddingVertical: 10 }}>
+      <TextInputComponent title="Your name" onChange={(value: string) => {
+        if (value.length <= 10) {
+          setName(value)
+        } else {
+          showToast('error', 'Name too long', 'Must be less than 10 characters')
+        }
+      }} value={name} placeholder="White Rabbit" />
       <TextInputComponent title="Room code" onChange={(value: string) => {
         if (value.length <= 10) {
-          setRoomCode(value)
+          setRoomCode(value.toUpperCase())
         } else {
           showToast('error', 'Room code too long', 'Must be less than 10 characters long')
         }
@@ -118,7 +119,6 @@ export default function CreateRoomScreen({ navigation }: RootStackScreenProps<'C
           <Picker.Item label="Over a year" value="long_term" />
         </Picker>
       </View>
-      <ButtonComponent title="Create room" onPress={createRoom} />
     </ScrollView>
   )
 }

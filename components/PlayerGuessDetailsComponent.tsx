@@ -20,7 +20,6 @@ export default function PlayerGuessDetailsComponent({ navigation, route }: RootS
         backgroundColor: Colors.background,
       },
     })
-
   }, [])
 
   const getUserGuessForSong = (index: number) => {
@@ -44,8 +43,8 @@ export default function PlayerGuessDetailsComponent({ navigation, route }: RootS
                 <View key={index} style={{ marginVertical: 10, backgroundColor: 'transparent', paddingVertical: 10, paddingHorizontal: 20 }}>
                   <Text style={{ color: 'white', fontSize: 20, fontWeight: 'bold', width: '90%' }}>{song.song.name}</Text>
                   <Text style={{ color: 'white', fontSize: 16 }}>{song.song.artists[0].name}</Text>
-                  <Text style={{ color: getUserGuessForSong(index) === song.player.id ? Colors.primary : Colors.error, fontSize: 16, marginTop: 20 }}>Guess: {getUserGuessForSong(index)}</Text>
-                  <Text style={{ color: 'white', fontSize: 16, marginTop: 5 }}>Correct was: {song.player.id}</Text>
+                  <Text style={{ color: getUserGuessForSong(index) === song.player.name ? Colors.primary : Colors.error, fontSize: 16, marginTop: 20 }}>{getUserGuessForSong(index) ? 'Guess: ' + getUserGuessForSong(index) : 'No guess'}</Text>
+                  <Text style={{ color: 'white', fontSize: 16, marginTop: 5 }}>Correct was: {song.player.name}</Text>
                 </View>
               </ImageBackground>
             </View>

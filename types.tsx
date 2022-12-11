@@ -31,7 +31,7 @@ type RootStackParamListAuth = {
   Search: undefined
   AddNonAuthPlayerModal: undefined
   PlayerGuessDetails: { user: IUser, songs: { song: SongItem, player: IUser }[] }
-  Room: { roomCode: string, songsPerUser: number | undefined, timeRange: string | undefined, createRoom: boolean, nonAuthUser: NonAuthUser | undefined }
+  Room: { roomCode: string, songsPerUser: number | undefined, timeRange: string | undefined, createRoom: boolean, nonAuthUser: NonAuthUser | undefined, name: string }
 }
 
 type RootStackParamListDemo = {

@@ -102,6 +102,15 @@ io.on('connection', (socket) => {
 			return;
 		}
 
+		// check if user with same name is already in room
+		const userAlreadyInRoom = room.players.find((player) => player.name === user.name);
+
+		if (userAlreadyInRoom) {
+			socket.emit(ServerEmits.REQUEST_TO_JOIN_ROOM_REJECTED);
+			socket.emit('error', 'Name already taken', 'Try another name');
+			return;
+		}
+
 		if (room.gamePosition === 0) {
 			// Get top songs for user
 			getTopSongsForUser(room.timeRange, room.songsPerUser, token, user).then((songs) => {
@@ -198,7 +207,8 @@ io.on('connection', (socket) => {
 					timeRange
 				};
 				rooms.push(newRoom);
-				socket.join(roomCode)
+				logMessage(`${user.name} created room ${roomCode} with ${songs.length} songs`, 'info');
+				socket.join(roomCode.trim().toUpperCase())
 				socket.emit(ServerEmits.REQUEST_TO_CREATE_ROOM_ACCEPTED, newRoom);
 				logMessage(`${user.name} created room ${roomCode}`, 'info');
 			}).catch((err) => {
@@ -238,7 +248,7 @@ io.on('connection', (socket) => {
 			}
 
 			const currentGuess = player.guesses.find((guess) => guess.currentSongIndex === currentSongIndex);
-			const answer = room.songs[currentSongIndex].player.id;
+			const answer = room.songs[currentSongIndex].player.name;
 			const correct = answer === guess;
 
 			logMessage(`${user.name} guessed ${guess} on ${room.songs[currentSongIndex].player.name} for song ${currentSongIndex} and it was ${correct ? 'correct' : 'incorrect'}`, 'info');
@@ -289,8 +299,8 @@ io.on('connection', (socket) => {
 				logMessage(`${user.name} left ${roomCode} with users ${room?.players.map(user => user.name)}`, 'info')
 			}
 		}
-		socket.leave(roomCode)
-		socket.disconnect()
+		console.log(`${user.name} left ${roomCode}`)
+		socket.leave(roomCode.trim().toUpperCase())
 		sendRoomUpdates(roomCode)
 	})
 
@@ -329,6 +339,7 @@ io.on('connection', (socket) => {
 			} else {
 				room.currentSongIndex += 1
 			}
+
 			sendRoomUpdates(roomCode)
 		}
 	})

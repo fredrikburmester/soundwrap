@@ -26,6 +26,7 @@ export default function RoomScreen({ route, navigation }: RootStackScreenProps<'
 
   const [loading, setLoading] = useState(false)
   const [songsPerUser, setSongsPerUser] = useState(route.params.songsPerUser)
+  const [name, setName] = useState<string>(route.params.name)
   const [roomCode, setRoomCode] = useState(route.params.roomCode)
   const [timeRange, setTimeRange] = useState(route.params.timeRange)
   const [songs, setSongs] = useState<{ song: SongItem, player: IUser }[]>([])
@@ -147,6 +148,26 @@ export default function RoomScreen({ route, navigation }: RootStackScreenProps<'
     localsocket.current.emit('requestRoomUpdate', roomCode)
   }
 
+  const setHeader = (pos: number) => {
+    navigation.setOptions({
+      title: ``,
+      headerBackTitleVisible: true,
+      headerBackTitle: 'Back',
+      headerBackVisible: true,
+      headerLargeTitle: false,
+      headerStyle: {
+        backgroundColor: Colors.background,
+      },
+      headerShadowVisible: false,
+      headerRight: () => (
+        <>
+          {pos === 0 && <Ionicons name="close" size={24} color="red" style={{ marginRight: 0 }} onPress={() => openLeaveRoomAlert()} />}
+          {pos === 2 && <Ionicons name="add" size={24} color="white" style={{ marginRight: 0 }} onPress={() => openSaveSongsAlert()} />}
+        </>
+      ),
+    })
+  }
+
   // useEffect(() => {
   //   if (route.params?.nonAuthUser) {
   //     // setNonAuthUsers([...nonAuthUsers, route.params.nonAuthUser])
@@ -170,7 +191,7 @@ export default function RoomScreen({ route, navigation }: RootStackScreenProps<'
     if (createRoom) {
       localsocket.current.emit(ClientEmits.REQUEST_TO_CREATE_ROOM, {
         roomCode: roomCode,
-        user: auth.user,
+        user: { ...auth.user, name: name },
         token: auth.token,
         songsPerUser: songsPerUser,
         timeRange: timeRange
@@ -178,7 +199,7 @@ export default function RoomScreen({ route, navigation }: RootStackScreenProps<'
     } else {
       localsocket.current.emit(ClientEmits.REQUEST_TO_JOIN_ROOM, {
         roomCode: roomCode,
-        user: auth.user,
+        user: { ...auth.user, name: name },
         token: auth.token
       })
     }
@@ -256,38 +277,6 @@ export default function RoomScreen({ route, navigation }: RootStackScreenProps<'
     }
   }, [])
 
-  // useFocusEffect(
-  //   useCallback(() => {
-  //     localsocket.current.connect()
-
-  //     return () => {
-  //       console.log('leaving room')
-  //       localsocket.current.emit(ClientEmits.LEAVE_ROOM, { roomCode: roomCode, user: auth.user })
-  //       localsocket.current.disconnect()
-  //     }
-  //   }, [])
-  // )
-
-  const setHeader = (pos: number) => {
-    navigation.setOptions({
-      title: ``,
-      headerBackTitleVisible: true,
-      headerBackTitle: 'Back',
-      headerBackVisible: true,
-      headerLargeTitle: false,
-      headerStyle: {
-        backgroundColor: Colors.background,
-      },
-      headerShadowVisible: false,
-      headerRight: () => (
-        <>
-          {pos === 0 && <Ionicons name="close" size={24} color="red" style={{ marginRight: 0 }} onPress={() => openLeaveRoomAlert()} />}
-          {pos === 2 && <Ionicons name="add" size={24} color="white" style={{ marginRight: 0 }} onPress={() => openSaveSongsAlert()} />}
-        </>
-      ),
-    })
-  }
-
   if (gamePosition === 0) {
     return (
       <>
@@ -357,8 +346,8 @@ export default function RoomScreen({ route, navigation }: RootStackScreenProps<'
             }}>Click on the player you think this song belongs to.</Text>
           </View>
           {players.map((item) =>
-            <TouchableHighlight style={{ marginHorizontal: 20, marginBottom: 10 }} onPress={() => guessOnPress(item.id)} key={item.id}>
-              <View style={guess == item.id ? { borderRadius: 10, shadowColor: Colors.primary, shadowRadius: 7, shadowOpacity: 1, elevation: 24 } : {}}>
+            <TouchableHighlight style={{ marginHorizontal: 20, marginBottom: 10 }} onPress={() => guessOnPress(item.name)} key={item.id}>
+              <View style={guess == item.name ? { borderRadius: 10, shadowColor: Colors.primary, shadowRadius: 7, shadowOpacity: 1, elevation: 24 } : {}}>
                 <UserCard avatar={item.avatar} name={item.name} description={item.guesses.some(guess => guess.currentSongIndex == currentSongIndex) ? 'Guessed' : ''} />
               </View>
             </TouchableHighlight>
