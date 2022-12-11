@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { StyleSheet, Image, FlatList, TouchableOpacity, ScrollView, TextInput, Switch, Button, Alert, Pressable, TouchableHighlight, RefreshControl, ActivityIndicator } from 'react-native'
 import { AuthContextType, IAuth, IGuess, IUser, NonAuthUser } from '../types/auth'
 import { Text, View } from '../components/Themed'
@@ -18,6 +18,7 @@ import {
 } from '../types/socket'
 import { useSpotify } from '../hooks/useSpotify'
 import * as Haptics from 'expo-haptics'
+import { useFocusEffect } from '@react-navigation/native'
 
 export default function RoomScreen({ route, navigation }: RootStackScreenProps<'Room'>) {
 
@@ -163,6 +164,8 @@ export default function RoomScreen({ route, navigation }: RootStackScreenProps<'
     })
 
     socket.on(ServerEmits.ROOM_UPDATED, (room: IRoom) => {
+      console.log(room)
+
       setPlayers(room.players)
       setSongs(room.songs)
       setIsHost(room.host.id === auth.user?.id)
@@ -186,7 +189,6 @@ export default function RoomScreen({ route, navigation }: RootStackScreenProps<'
         //   }
         // }
 
-
         setGuess('')
       }
 
@@ -203,7 +205,19 @@ export default function RoomScreen({ route, navigation }: RootStackScreenProps<'
         setIsHost(false)
       }
     })
-  }, [])
+  }, [socket])
+
+  useFocusEffect(
+    useCallback(() => {
+      socket.connect()
+
+      return () => {
+        console.log('leaving room')
+        socket.emit(ClientEmits.LEAVE_ROOM, { roomCode: roomCode, user: auth.user })
+        socket.disconnect()
+      }
+    }, [])
+  )
 
   useEffect(() => {
     navigation.setOptions({
@@ -226,7 +240,9 @@ export default function RoomScreen({ route, navigation }: RootStackScreenProps<'
   }, [gamePositionRef.current])
 
   const onRefresh = () => {
-    socket.connect()
+    if (socket.disconnected) {
+      socket.connect()
+    }
     socket.emit('requestRoomUpdate', roomCode)
   }
 
@@ -332,7 +348,7 @@ export default function RoomScreen({ route, navigation }: RootStackScreenProps<'
               marginRight: 20,
             }}>{index + 1}</Text>
             <TouchableOpacity style={{ flex: 1 }} onPress={() => openGuessDetailModal(item)}>
-              <UserCard avatar={item.avatar} name={item.name} style={{ flex: 1 }} description={`Score: ${item.score} of ${currentSongIndex + 1}`} />
+              <UserCard avatar={item.avatar} name={item.name} style={{ flex: 1 }} description={`Score: ${item.score} of ${songs.length}`} />
             </TouchableOpacity>
           </View>
         }
