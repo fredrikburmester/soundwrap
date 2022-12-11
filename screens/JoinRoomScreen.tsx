@@ -13,7 +13,7 @@ export default function JoinRoomScreen({ navigation }: RootStackScreenProps<'Joi
   const [name, setName] = useState<string>('')
 
   const joinRoom = () => {
-    navigation.navigate('Room', { roomCode: roomCode, songsPerUser: undefined, timeRange: undefined, createRoom: false, nonAuthUser: undefined, name: name })
+    navigation.navigate('Room', { roomCode: roomCode, songsPerUser: undefined, timeRange: undefined, createRoom: false, nonAuthUser: undefined, name: name.trim() })
   }
 
   useEffect(() => {

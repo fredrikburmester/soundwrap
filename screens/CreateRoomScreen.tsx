@@ -42,7 +42,7 @@ export default function CreateRoomScreen({ navigation }: RootStackScreenProps<'C
   }
 
   const createRoom = () => {
-    navigation.navigate('Room', { roomCode: roomCode, songsPerUser: songsPerUser, timeRange: timeRange, createRoom: true, nonAuthUser: undefined, name: name })
+    navigation.navigate('Room', { roomCode: roomCode, songsPerUser: songsPerUser, timeRange: timeRange, createRoom: true, nonAuthUser: undefined, name: name.trim() })
   }
 
   useEffect(() => {
@@ -71,13 +71,9 @@ export default function CreateRoomScreen({ navigation }: RootStackScreenProps<'C
   )
 
   return (
-    <ScrollView style={{ backgroundColor: 'transparent', paddingHorizontal: 20, paddingVertical: 10 }}>
+    <ScrollView style={{ backgroundColor: 'transparent', paddingHorizontal: 20, paddingVertical: 20 }}>
       <TextInputComponent title="Your name" onChange={(value: string) => {
-        if (value.length <= 10) {
-          setName(value)
-        } else {
-          showToast('error', 'Name too long', 'Must be less than 10 characters')
-        }
+        setName(value)
       }} value={name} placeholder="White Rabbit" />
       <TextInputComponent title="Room code" onChange={(value: string) => {
         if (value.length <= 10) {
