@@ -164,8 +164,6 @@ export default function RoomScreen({ route, navigation }: RootStackScreenProps<'
     })
 
     socket.on(ServerEmits.ROOM_UPDATED, (room: IRoom) => {
-      console.log(room)
-
       setPlayers(room.players)
       setSongs(room.songs)
       setIsHost(room.host.id === auth.user?.id)
@@ -207,17 +205,17 @@ export default function RoomScreen({ route, navigation }: RootStackScreenProps<'
     })
   }, [socket])
 
-  useFocusEffect(
-    useCallback(() => {
-      socket.connect()
+  // useFocusEffect(
+  //   useCallback(() => {
+  //     socket.connect()
 
-      return () => {
-        console.log('leaving room')
-        socket.emit(ClientEmits.LEAVE_ROOM, { roomCode: roomCode, user: auth.user })
-        socket.disconnect()
-      }
-    }, [])
-  )
+  //     return () => {
+  //       console.log('leaving room')
+  //       socket.emit(ClientEmits.LEAVE_ROOM, { roomCode: roomCode, user: auth.user })
+  //       socket.disconnect()
+  //     }
+  //   }, [])
+  // )
 
   useEffect(() => {
     navigation.setOptions({
@@ -250,6 +248,35 @@ export default function RoomScreen({ route, navigation }: RootStackScreenProps<'
     navigation.navigate('PlayerGuessDetails', { user: user, songs: songs })
   }
 
+  const confirmNextSongAlert = () => {
+    let count = 0
+
+    for (let player of players) {
+      let guess = player.guesses.some(guess => guess.currentSongIndex == currentSongIndex)
+      if (guess) {
+        count++
+      }
+    }
+
+    if (count < players.length) {
+      Alert.alert(
+        'Next song?',
+        'Not everyone has guessed. Are you sure you want to move on?',
+        [
+          {
+            text: 'Cancel',
+            onPress: () => { },
+            style: 'cancel'
+          },
+          { text: 'OK', onPress: () => nextSong() }
+        ],
+        { cancelable: false }
+      )
+    } else {
+      nextSong()
+    }
+  }
+
   const nextSong = () => {
     setLoading(true)
     socket.emit('nextSong', { roomCode: roomCode })
@@ -257,82 +284,92 @@ export default function RoomScreen({ route, navigation }: RootStackScreenProps<'
 
   if (gamePosition === 0) {
     return (
-      <FlashList
-        refreshControl={<RefreshControl refreshing={false} onRefresh={onRefresh} />}
-        data={players}
-        renderItem={({ item }) =>
-          <View style={{ marginHorizontal: 20 }}>
-            <UserCard avatar={item.avatar} name={item.name} />
-          </View>
-        }
-        ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
-        ListHeaderComponent={() => <View style={{ marginHorizontal: 20, marginVertical: 20 }}>
-          <Text style={{
-            fontSize: 12,
-            opacity: 0.5,
-          }}>Room code</Text>
-          <Text style={{
-            fontSize: 32,
-            fontWeight: 'bold',
-            color: Colors.primary,
-          }}>{roomCode}</Text>
-          <Text style={{ fontStyle: 'italic' }}>
-            {isHost && "Other users can join the game by entering the room code. Start the game when everyone's ready! "}
-            {!isHost && 'Waiting for host to start the game... Invite others by sharing the room code with them! '}
-            <Text style={{ color: Colors.primary }}>Who's gonna win?</Text></Text>
-          {/* <View style={{ marginTop: 10, opacity: 1 }}>
+      <>
+        <FlashList
+          refreshControl={<RefreshControl refreshing={false} onRefresh={onRefresh} />}
+          data={players}
+          renderItem={({ item }) =>
+            <View style={{ marginHorizontal: 20 }}>
+              <UserCard avatar={item.avatar} name={item.name} />
+            </View>
+          }
+          ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
+          ListHeaderComponent={() => <View style={{ marginHorizontal: 20, marginVertical: 20 }}>
+            <Text style={{
+              fontSize: 12,
+              opacity: 0.5,
+            }}>Room code</Text>
+            <Text style={{
+              fontSize: 32,
+              fontWeight: 'bold',
+              color: Colors.primary,
+            }}>{roomCode}</Text>
+            <Text style={{ fontStyle: 'italic' }}>
+              {isHost && "Other users can join the game by entering the room code. Start the game when everyone's ready! "}
+              {!isHost && 'Waiting for host to start the game... Invite others by sharing the room code with them! '}
+              <Text style={{ color: Colors.primary }}>Who's gonna win?</Text></Text>
+            {/* <View style={{ marginTop: 10, opacity: 1 }}>
             <ButtonComponent size='sm' title="Add non-spotify player" onPress={addNonAuthPlayer} style={{ width: 200, backgroundColor: Colors.backgroundDark }} />
           </View> */}
+          </View>}
+          ListFooterComponent={() =>
+            <>
+
+            </>
+          }
+          keyExtractor={(player) => player.id}
+          estimatedItemSize={100}
+        />
+        {isHost && <View style={{ marginHorizontal: 20, marginBottom: 40 }}>
+          <ButtonComponent title="Start" onPress={() => socket.emit('startGame', { roomCode })} />
         </View>}
-        ListFooterComponent={() =>
-          <>
-            {isHost && <View style={{ marginHorizontal: 20, marginVertical: 20 }}>
-              <ButtonComponent title="Start" onPress={() => socket.emit('startGame', { roomCode })} />
-            </View>}
-          </>
-        }
-        keyExtractor={(player) => player.id}
-        estimatedItemSize={100}
-      />
+      </>
+
     )
   } else if (gamePosition === 1) {
     return (
-      <ScrollView contentInsetAdjustmentBehavior="automatic" refreshControl={<RefreshControl refreshing={false} onRefresh={onRefresh} />}>
-        <View style={{ marginHorizontal: 20, marginVertical: 20 }}>
-          <Text style={{
-            fontSize: 12,
-            opacity: 0.5,
-          }}>{currentSongIndex + 1} of {songs.length}</Text>
-          <Text style={{
-            fontSize: 24,
-            fontWeight: 'bold',
-            color: Colors.primary,
-          }}>Whos song is this?</Text>
-          <Text style={{
-            fontSize: 12,
-            color: 'white',
-          }}>Click on the player you think this song belongs to.</Text>
-        </View>
-        {players.map((item) =>
-          <TouchableHighlight style={{ marginHorizontal: 20, marginBottom: 10 }} onPress={() => guessOnPress(item.id)} key={item.id}>
-            <View style={guess == item.id ? { borderRadius: 10, shadowColor: Colors.primary, shadowRadius: 7, shadowOpacity: 1, elevation: 24 } : {}}>
-              <UserCard avatar={item.avatar} name={item.name} description={item.guesses.some(guess => guess.currentSongIndex == currentSongIndex) ? 'Guessed' : ''} />
-            </View>
-          </TouchableHighlight>
-        )}
+      <>
         <View style={{ height: 90, marginTop: 0 }}>
           {songs && songs.length > currentSongIndex &&
             <SpotifyPlayer songUri={songs[currentSongIndex].song.uri} />}
         </View>
-        {isHost && !loading && <View style={{ marginHorizontal: 20, marginVertical: 20 }}>
-          <ButtonComponent title="Next song" onPress={nextSong} />
-        </View>}
-        {isHost && loading && <View style={{ marginHorizontal: 20, marginVertical: 20, opacity: 0.5 }}>
-          <ButtonComponent onPress={nextSong}>
-            <ActivityIndicator size="small" color="white" />
-          </ButtonComponent>
-        </View>}
-      </ScrollView>
+        <ScrollView contentInsetAdjustmentBehavior="automatic" refreshControl={<RefreshControl refreshing={false} onRefresh={onRefresh} />}>
+          <View style={{ marginHorizontal: 20, marginVertical: 20 }}>
+            <Text style={{
+              fontSize: 12,
+              opacity: 0.5,
+            }}>Question: {currentSongIndex + 1} of {songs.length}</Text>
+            <Text style={{
+              fontSize: 24,
+              fontWeight: 'bold',
+              color: Colors.primary,
+            }}>Whos song is this?</Text>
+            <Text style={{
+              fontSize: 12,
+              color: 'white',
+              marginTop: 2
+            }}>Click on the player you think this song belongs to.</Text>
+          </View>
+          {players.map((item) =>
+            <TouchableHighlight style={{ marginHorizontal: 20, marginBottom: 10 }} onPress={() => guessOnPress(item.id)} key={item.id}>
+              <View style={guess == item.id ? { borderRadius: 10, shadowColor: Colors.primary, shadowRadius: 7, shadowOpacity: 1, elevation: 24 } : {}}>
+                <UserCard avatar={item.avatar} name={item.name} description={item.guesses.some(guess => guess.currentSongIndex == currentSongIndex) ? 'Guessed' : ''} />
+              </View>
+            </TouchableHighlight>
+          )}
+        </ScrollView>
+        <View style={{ marginBottom: 20 }}>
+          {isHost && !loading && <View style={{ marginHorizontal: 20, marginVertical: 20 }}>
+            <ButtonComponent title="Next song" onPress={confirmNextSongAlert} />
+          </View>}
+          {isHost && loading && <View style={{ marginHorizontal: 20, marginVertical: 20, opacity: 0.5 }}>
+            <ButtonComponent onPress={nextSong}>
+              <ActivityIndicator size="small" color="white" />
+            </ButtonComponent>
+          </View>}
+        </View>
+      </>
+
     )
   } else {
     return (
