@@ -133,6 +133,8 @@ io.on('connection', (socket) => {
 				socket.join(roomCode)
 				socket.emit(ServerEmits.REQUEST_TO_JOIN_ROOM_ACCEPTED, room);
 				sendRoomUpdates(roomCode);
+			}).catch((err) => {
+				logMessage(err, 'Error getting top songs', 'error');
 			});
 		} else if (room.gamePosition === 1) {
 			// check if user is already in room
@@ -299,7 +301,7 @@ io.on('connection', (socket) => {
 				logMessage(`${user.name} left ${roomCode} with users ${room?.players.map(user => user.name)}`, 'info')
 			}
 		}
-		console.log(`${user.name} left ${roomCode}`)
+		logMessage(`${user.name} left ${roomCode}`, 'info')
 		socket.leave(roomCode.trim().toUpperCase())
 		sendRoomUpdates(roomCode)
 	})
@@ -330,7 +332,7 @@ io.on('connection', (socket) => {
 				fs.writeFile
 				(`./rooms/${roomCode}.json`, roomData, (err) => {
 					if (err) {
-						console.error(err)
+						logMessage(`Error saving room ${roomCode} to file`, 'error')
 						return
 					}
 					// file written successfully
@@ -345,7 +347,7 @@ io.on('connection', (socket) => {
 	})
 
   socket.on(ClientEmits.DISCONNECT, () => {
-		console.log('client disconnecting')
+		//
 	})
 })
 
