@@ -59,28 +59,19 @@ export default function App() {
   useEffect(() => {
     // socket.connect()
 
-    // socket.on('connect', () => {
-    //   console.log('connect')
-    // })
+    socket.on("disconnect", (reason) => {
+      if (reason === "io server disconnect") {
+        socket.connect()
+      }
+    })
 
-    // socket.on("disconnect", (reason) => {
-    //   if (reason === "io server disconnect") {
-    //     socket.connect()
-    //   }
-    // })
+    socket.on('error', (title: string, error: string) => {
+      showToast('error', title, error)
+    })
 
-    // socket.on('error', (title: string, error: string) => {
-    //   showToast('error', title, error)
-    // })
-
-    // socket.on('info', (title: string, message: string) => {
-    //   showToast('success', title, message)
-    // })
-
-    // return () => {
-    //   socket.off('connect')
-    //   socket.off('disconnect')
-    // }
+    socket.on('info', (title: string, message: string) => {
+      showToast('success', title, message)
+    })
   }, [])
 
   if (!isLoadingComplete) {
