@@ -26,13 +26,6 @@ const io = new Server(httpServer, {
 const rooms = [] as IRoom[];
 const errors = [] as string[];
 
-const sendRoomUpdates = (roomCode: string) => {
-	const room = rooms.find((room) => room.roomCode === roomCode);
-	if (room) {
-		io.to(roomCode).emit(ServerEmits.ROOM_UPDATED, room);
-	}
-};
-
 const logMessage = (message: string, type: 'info' | 'error') => {
 	const dateTime = new Date().toLocaleString('sv-SE', {
 		timeZone: 'Europe/Stockholm',
@@ -74,8 +67,16 @@ app.get('/', (req, res) => {
 	res.send('Hey this is still in development!');
 });
 
+const sendRoomUpdates = (roomCode: string) => {
+	const room = rooms.find((room) => room.roomCode === roomCode);
+	if (room) {
+		io.to(roomCode).emit(ServerEmits.ROOM_UPDATED, room);
+	}
+};
+
 io.on('connection', (socket) => {
 	socket.on(ClientEmits.REQUEST_TO_JOIN_ROOM, ({roomCode, user, token}: {roomCode: string, user: IUser, token: string}) => {
+
 		if(!roomCode) {
 			socket.emit(ServerEmits.REQUEST_TO_JOIN_ROOM_REJECTED);
 			socket.emit('error', "You forgot the code", 'No code, no room, no game...');
@@ -284,11 +285,12 @@ io.on('connection', (socket) => {
 					if(room.host.id === user.id) {
 						room.host = room.players[0]
 					}
-					socket.leave(roomCode)
 				}
 				logMessage(`${user.name} left ${roomCode} with users ${room?.players.map(user => user.name)}`, 'info')
 			}
 		}
+		socket.leave(roomCode)
+		socket.disconnect()
 		sendRoomUpdates(roomCode)
 	})
 
@@ -332,7 +334,7 @@ io.on('connection', (socket) => {
 	})
 
   socket.on(ClientEmits.DISCONNECT, () => {
-		//
+		console.log('client disconnecting')
 	})
 })
 

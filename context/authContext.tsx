@@ -18,22 +18,44 @@ const AuthProvider: React.FC<Props> = ({ children }) => {
     }
   )
 
+  const [demo, setDemo] = useState<boolean>(false)
+
   const { getMe } = useSpotifyAuth()
 
-  const isAuthenticated = async () => {
-    const jsonValue = await AsyncStorage.getItem('@auth')
-    if (jsonValue) {
-      const authObject = JSON.parse(jsonValue) as IAuth
-      if (authObject) {
-        setAuth({
-          authenticated: false,
-          token: '',
-          user: null,
-        })
-      }
+  // const isAuthenticated = async () => {
+  //   const jsonValue = await AsyncStorage.getItem('@auth')
+  //   if (jsonValue) {
+  //     const authObject = JSON.parse(jsonValue) as IAuth
+  //     if (authObject) {
+  //       setAuth({
+  //         authenticated: false,
+  //         token: '',
+  //         user: null,
+  //       })
+  //     }
+  //   }
+  //   return auth.authenticated
+  // }
+
+  const loginDemo = () => {
+    const me: IUser = {
+      id: 'demo',
+      name: 'Demo',
+      avatar: 'https://picsum.photos/200',
+      score: 0,
+      guesses: []
     }
-    return auth.authenticated
+
+    const authObject = {
+      authenticated: false,
+      token: 'demo',
+      user: me,
+    }
+
+    setAuth(authObject)
+    setDemo(true)
   }
+
 
   const login = async (token: string) => {
     try {
@@ -63,15 +85,12 @@ const AuthProvider: React.FC<Props> = ({ children }) => {
 
   const logout = async () => {
     setAuth({ authenticated: false, token: '', user: null })
+    setDemo(false)
     await AsyncStorage.removeItem('@auth')
   }
 
-  useEffect(() => {
-    isAuthenticated()
-  }, [])
-
   return (
-    <AuthContext.Provider value={{ auth, login, logout, isAuthenticated }}>
+    <AuthContext.Provider value={{ auth, login, logout, demo, loginDemo }}>
       {children}
     </AuthContext.Provider>
   )

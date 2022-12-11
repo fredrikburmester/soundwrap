@@ -15,8 +15,9 @@ declare global {
   }
 }
 
-export type RootStackParamList = {
-  // Root: NavigatorScreenParams<RootTabParamList> | undefined
+export type RootStackParamList = RootStackParamListAuth & RootStackParamListDemo
+
+type RootStackParamListAuth = {
   AddPlaylistModal: undefined
   NotFound: undefined
   Login: undefined
@@ -29,8 +30,25 @@ export type RootStackParamList = {
   Profile: undefined
   Search: undefined
   AddNonAuthPlayerModal: undefined
-  PlayerGuessDetails: { user: IUser, songs: {song: SongItem, player: IUser}[]} 
+  PlayerGuessDetails: { user: IUser, songs: { song: SongItem, player: IUser }[] }
   Room: { roomCode: string, songsPerUser: number | undefined, timeRange: string | undefined, createRoom: boolean, nonAuthUser: NonAuthUser | undefined }
+}
+
+type RootStackParamListDemo = {
+  DemoAddPlaylistModal: undefined
+  DemoNotFound: undefined
+  DemoLogin: undefined
+  DemoTopSongs: undefined
+  DemoTopArtists: undefined
+  DemoSoundcheck: undefined
+  DemoCreate: undefined
+  DemoJoin: undefined
+  DemoHome: undefined
+  DemoProfile: undefined
+  DemoSearch: undefined
+  DemoAddNonAuthPlayerModal: undefined
+  DemoPlayerGuessDetails: { user: IUser, songs: { song: SongItem, player: IUser }[] }
+  DemoRoom: { roomCode: string, songsPerUser: number | undefined, timeRange: string | undefined, createRoom: boolean, nonAuthUser: NonAuthUser | undefined }
 }
 
 export type RootStackScreenProps<Screen extends keyof RootStackParamList> = NativeStackScreenProps<

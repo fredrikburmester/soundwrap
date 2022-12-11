@@ -20,8 +20,9 @@ export interface IAuth {
 export type AuthContextType = {
   auth: IAuth;
   login: (token: string) => void;
+  loginDemo: () => void;
   logout: () => void;
-  isAuthenticated: () => Promise<boolean>;
+  demo: boolean;
 };
 
 export type NonAuthUser = {

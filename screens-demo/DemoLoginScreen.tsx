@@ -17,20 +17,14 @@ const discovery = {
   tokenEndpoint: 'https://accounts.spotify.com/api/token',
 }
 
-export default function LoginScreen({ navigation }: RootStackScreenProps<'Login'>) {
-  const { login, loginDemo } = useContext(AuthContext) as AuthContextType
+export default function DemoLoginScreen({ navigation }: RootStackScreenProps<'DemoLogin'>) {
+  const { login } = useContext(AuthContext) as AuthContextType
   const [loading, setLoading] = useState(false)
   const fadeAnim = useRef(new Animated.Value(0)).current
   const slideAnim = useRef(new Animated.Value(-400)).current
   const slideAnim2 = useRef(new Animated.Value(-800)).current
   const slideAnim3 = useRef(new Animated.Value(-1600)).current
   const slideAnim4 = useRef(new Animated.Value(200)).current
-
-  const openDemo = () => {
-    console.log('open demo')
-    setLoading(true)
-    loginDemo()
-  }
 
   useEffect(() => {
     Animated.timing(slideAnim, {
@@ -70,6 +64,15 @@ export default function LoginScreen({ navigation }: RootStackScreenProps<'Login'
     }).start()
   }, [slideAnim, slideAnim2, slideAnim3, slideAnim4, fadeAnim])
 
+  // useEffect(() => {
+  //   Animated.timing(scaleAnim, {
+  //     toValue: 1,
+  //     duration: 1000,
+  //     useNativeDriver: true
+  //   }).start()
+  // }, [scaleAnim])
+
+
   const requestTokenAndLogin = async () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
     setLoading(true)
@@ -78,7 +81,7 @@ export default function LoginScreen({ navigation }: RootStackScreenProps<'Login'
 
   const [request, response, promptAsync] = useAuthRequest({
     responseType: ResponseType.Token,
-    clientId: __DEV__ ? 'b628fccd4e284c469c95f515f14d079e' : 'bad02ecfaf4046638a1daa7f60cbe42b',
+    clientId: 'bad02ecfaf4046638a1daa7f60cbe42b',
     scopes: ['user-read-email', 'playlist-modify-public', 'user-top-read', 'playlist-read-private', 'streaming', 'user-modify-playback-state', 'user-read-private', 'user-read-playback-state', 'user-read-playback-position', 'user-modify-playback-state', 'user-read-currently-playing'],
     usePKCE: false,
     redirectUri: makeRedirectUri({
@@ -178,7 +181,6 @@ export default function LoginScreen({ navigation }: RootStackScreenProps<'Login'
               height: 48
             }, pressed ? { opacity: 0.5 } : {}]}
           onPress={requestTokenAndLogin}
-          onLongPress={openDemo}
         >
           <Text style={{ fontWeight: 'bold' }}>Login with Spotify</Text>
         </Pressable>}

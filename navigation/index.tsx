@@ -23,6 +23,16 @@ import AddNonAuthPlayerModal from '../components/AddNonAuthPlayerModal'
 import PlayerGuessDetailsComponent from '../components/PlayerGuessDetailsComponent'
 import { useSpotifyAuth } from '../hooks/useSpotifyAuth'
 import socket from '../utils/socket'
+import DemoHomeScreen from '../screens-demo/DemoHomeScreen'
+import DemoCreateRoomScreen from '../screens-demo/DemoCreateRoomScreen'
+import DemoJoinRoomScreen from '../screens-demo/DemoJoinRoomScreen'
+import DemoNotFoundScreen from '../screens-demo/DemoNotFoundScreen'
+import DemoProfileScreen from '../screens-demo/DemoProfileScreen'
+import DemoRoomScreen from '../screens-demo/DemoRoomScreen'
+import DemoSearchScreen from '../screens-demo/DemoSeachScreen'
+import DemoSoundcheckScreen from '../screens-demo/DemoSoundcheckScreen'
+import DemoTopArtistsScreen from '../screens-demo/DemoTopArtistsScreen'
+import DemoTopSongsScreen from '../screens-demo/DemoTopSongsScreen'
 
 type Props = {
   colorScheme: ColorSchemeName
@@ -51,7 +61,7 @@ export default Navigation
 const Stack = createNativeStackNavigator<RootStackParamList>()
 
 function RootNavigator() {
-  const { auth, logout } = useContext(AuthContext) as AuthContextType
+  const { auth, logout, demo } = useContext(AuthContext) as AuthContextType
   const appState = useRef(AppState.currentState)
   const [appStateVisible, setAppStateVisible] = useState(appState.current)
   const { getTokenStatus } = useSpotifyAuth()
@@ -83,13 +93,25 @@ function RootNavigator() {
     }
   }, [])
 
-  if (!auth.authenticated) {
+  if (demo === true) {
     return (
       <Stack.Navigator>
-        <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="DemoHome" component={DemoHomeScreen} />
+        <Stack.Screen name="DemoProfile" component={DemoProfileScreen} />
+        <Stack.Screen name="DemoNotFound" component={DemoNotFoundScreen} />
+        <Stack.Screen name="DemoTopSongs" component={DemoTopSongsScreen} />
+        <Stack.Screen name="DemoTopArtists" component={DemoTopArtistsScreen} options={{ title: 'Top Artists', headerLargeTitle: true, headerBlurEffect: 'dark', headerTransparent: true, headerLargeTitleShadowVisible: true }} />
+        <Stack.Screen name="DemoSoundcheck" component={DemoSoundcheckScreen} />
+        <Stack.Screen name="DemoCreate" component={DemoCreateRoomScreen} />
+        <Stack.Screen name="DemoJoin" component={DemoJoinRoomScreen} />
+        <Stack.Screen name="DemoRoom" component={DemoRoomScreen} />
+        <Stack.Screen name="DemoSearch" component={DemoSearchScreen} />
+        <Stack.Group screenOptions={{ presentation: 'modal' }}>
+          <Stack.Screen name="PlayerGuessDetails" component={PlayerGuessDetailsComponent} />
+        </Stack.Group>
       </Stack.Navigator>
     )
-  } else {
+  } else if (auth.authenticated) {
     return (
       <Stack.Navigator>
         <Stack.Screen name="Home" component={HomeScreen} />
@@ -108,6 +130,12 @@ function RootNavigator() {
         <Stack.Group screenOptions={{ presentation: 'modal' }}>
           <Stack.Screen name="PlayerGuessDetails" component={PlayerGuessDetailsComponent} />
         </Stack.Group>
+      </Stack.Navigator>
+    )
+  } else {
+    return (
+      <Stack.Navigator>
+        <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
       </Stack.Navigator>
     )
   }
