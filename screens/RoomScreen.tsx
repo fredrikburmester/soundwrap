@@ -1,6 +1,6 @@
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react'
-import { StyleSheet, Image, FlatList, TouchableOpacity, ScrollView, TextInput, Switch, Button, Alert, Pressable, TouchableHighlight, RefreshControl, ActivityIndicator } from 'react-native'
-import { AuthContextType, IAuth, IGuess, IUser, NonAuthUser } from '../types/auth'
+import { StyleSheet, Image, FlatList, TouchableOpacity, ScrollView, TextInput, Switch, Button, Alert, Pressable, TouchableHighlight, RefreshControl, ActivityIndicator, Animated, Easing } from 'react-native'
+import { AuthContextType, IAuth, IUser, NonAuthUser } from '../types/auth'
 import { Text, View } from '../components/Themed'
 import { AuthContext } from '../context/authContext'
 import { RootStackParamList, RootStackScreenProps } from '../types'
@@ -19,6 +19,7 @@ import {
 import { useSpotify } from '../hooks/useSpotify'
 import * as Haptics from 'expo-haptics'
 import { useFocusEffect } from '@react-navigation/native'
+import { LottieAnimation } from '../components/LottieAnimation'
 
 export default function RoomScreen({ route, navigation }: RootStackScreenProps<'Room'>) {
 
@@ -35,12 +36,21 @@ export default function RoomScreen({ route, navigation }: RootStackScreenProps<'
   const [currentSongIndex, setCurrentSongIndex] = useState<number>(1)
   const [gamePosition, setGamePosition] = useState(0)
   const [guess, setGuess] = useState('')
+  const [timeSinceLastUpdate, setTimeSinceLastUpdate] = useState<number>(0)
+  const [playAnimation, setPlayAnimation] = useState(false)
+  const [animationJSON, setAnimationJSON] = useState<any>(null)
   // const [nonAuthUsers, setNonAuthUsers] = useState<NonAuthUser[]>([])
 
   const { auth, logout } = useContext(AuthContext) as AuthContextType
 
   const hostRef = useRef(isHost)
   hostRef.current = isHost
+
+  const timeSinceLastUpdateRef = useRef(timeSinceLastUpdate)
+  timeSinceLastUpdateRef.current = timeSinceLastUpdate
+
+  const songsRef = useRef(songs)
+  songsRef.current = songs
 
   const gamePositionRef = useRef(gamePosition)
   gamePositionRef.current = gamePosition
@@ -61,6 +71,14 @@ export default function RoomScreen({ route, navigation }: RootStackScreenProps<'
     return null
   }
 
+  const getCorrectGuessAnimationJSON = () => {
+    return require('../assets/lottie/correctGuess2.json')
+  }
+
+  const getWrongGuessAnimationJSON = () => {
+    return require('../assets/lottie/wrongGuess.json')
+  }
+
   const guessOnPress = (newGuess: string) => {
     // Takes the user ID as the guess and sends it to the server
     setGuess(newGuess)
@@ -76,27 +94,27 @@ export default function RoomScreen({ route, navigation }: RootStackScreenProps<'
     Alert.alert('Leave room', 'Are you sure you want to leave the room?', [
       {
         text: 'Cancel',
-        onPress: () => console.log('Cancel Pressed'),
+        onPress: () => { },
         style: 'cancel',
       },
       { text: 'Leave', onPress: () => leaveRoom() },
     ])
   }
 
+  const saveSongs = () => {
+    const newPlaylistName = `Soundcheck - ${roomCode}`
+    createAndAddSongsToPlaylist(auth.token, newPlaylistName, songsRef.current.map((song: any) => song.song))
+  }
+
   const openSaveSongsAlert = () => {
     Alert.alert('Save Songs To Playlist', 'Do you want to save the songs in this game to a playlist in your Spotify account?', [
       {
         text: 'Cancel',
-        onPress: () => console.log('Cancel Pressed'),
+        onPress: () => { },
         style: 'cancel',
       },
       { text: 'Save', onPress: saveSongs },
     ])
-  }
-
-  const saveSongs = () => {
-    const newPlaylistName = `Soundcheck - ${roomCode}`
-    createAndAddSongsToPlaylist(auth.token, newPlaylistName, songs.map((song: any) => song.song))
   }
 
   const onRefresh = () => {
@@ -107,7 +125,7 @@ export default function RoomScreen({ route, navigation }: RootStackScreenProps<'
   }
 
   const openGuessDetailModal = (user: IUser) => {
-    navigation.navigate('PlayerGuessDetails', { user: user, songs: songs })
+    navigation.navigate('PlayerGuessDetails', { user: user, songs: songsRef.current })
   }
 
   const confirmNextSongAlert = () => {
@@ -184,6 +202,45 @@ export default function RoomScreen({ route, navigation }: RootStackScreenProps<'
   //   }
   // }, [route.params?.nonAuthUser])
 
+  const handleGuessResult = (room: IRoom) => {
+    if (gamePositionRef.current == 0) {
+      return
+    }
+
+    // Don't play animation on guess
+    if (room.gamePosition == 1 && room.currentSongIndex === currentSongIndexRef.current) {
+      return
+    }
+
+    if (room.currentSongIndex == currentSongIndexRef.current) {
+      // Don't play animation when starting game
+      if (gamePositionRef.current == 0 && room.gamePosition == 1) {
+        return
+      }
+    }
+
+    if (room.gamePosition == 2 && gamePositionRef.current == 2) {
+      return
+    }
+
+    const guess = guessRef.current
+    const correct = room.songs[currentSongIndexRef.current].player.name
+
+    if (guess === correct) {
+      setAnimationJSON(getCorrectGuessAnimationJSON)
+      setPlayAnimation(true)
+      Haptics.notificationAsync(
+        Haptics.NotificationFeedbackType.Success
+      )
+    } else {
+      setAnimationJSON(getWrongGuessAnimationJSON)
+      setPlayAnimation(true)
+      Haptics.notificationAsync(
+        Haptics.NotificationFeedbackType.Error
+      )
+    }
+  }
+
   useEffect(() => {
     localsocket.current.connect()
     setHeader(0)
@@ -231,47 +288,63 @@ export default function RoomScreen({ route, navigation }: RootStackScreenProps<'
         return
       }
 
-      console.log(`Room updated: ${roomCode}, Game position: ${room.gamePosition}, Q: ${room.currentSongIndex}`)
-      setHeader(room.gamePosition)
-      setPlayers(room.players)
-      setSongs(room.songs)
-      setIsHost(room.host.id === auth.user?.id)
-
-      if (room.currentSongIndex !== currentSongIndexRef.current) {
-        // Check if the guess was correct
-        // Vibrate accordingly
-        // if (gamePositionRef.current !== 0) {
-        //   const guess = guessRef.current
-        //   const correct = room.songs[room.currentSongIndex].player.id
-        //   if (guess === correct) {
-        //     Haptics.notificationAsync(
-        //       Haptics.NotificationFeedbackType.Success
-        //     )
-        //   } else {
-        //     Haptics.notificationAsync(
-        //       Haptics.NotificationFeedbackType.Error
-        //     )
-        //   }
-        // }
-        setGuess('')
+      // If less than 1s has passed, ignore the room update
+      if (Date.now() - timeSinceLastUpdateRef.current < 200) {
+        return
       }
 
-      setCurrentSongIndex(room.currentSongIndex)
-      setGamePosition(room.gamePosition)
-      setLoading(false)
+      if (room.gamePosition == 1 && gamePositionRef.current == 0) {
+        setSongs(room.songs)
+      }
+
+      if (room.gamePosition === 0) {
+        setPlayers(room.players)
+        try {
+          setIsHost(room.host?.id === auth.user?.id)
+        } catch (e) {
+          setIsHost(false)
+        }
+      }
+
+      setPlayers(room.players)
+
+      handleGuessResult(room)
 
       if (room.gamePosition === 2) {
-        // Clear all room data
-        setGuess('')
-        setCurrentSongIndex(0)
-        setGamePosition(2)
-        setIsHost(false)
-        setHeader(2)
+        setTimeout(() => {
+          // Clear the guess
+          setGuess('')
+
+          // Set current song
+          setCurrentSongIndex(0)
+
+          // Update game position
+          setGamePosition(2)
+
+          // Set header
+          setHeader(2)
+        }, 1000)
+      } else {
+        if (room.currentSongIndex !== currentSongIndexRef.current) {
+          setGuess('')
+        }
+
+        // Update game position
+        setGamePosition(room.gamePosition)
+
+        // Set current song 
+        setCurrentSongIndex(room.currentSongIndex)
+
+        // Set header
+        setHeader(room.gamePosition)
       }
+
+      // Set the exact unix time this function ran
+      setTimeSinceLastUpdate(Date.now())
+      setLoading(false)
     })
 
     return () => {
-      console.log(`Leaving room: ${roomCode}`)
       localsocket.current.emit(ClientEmits.LEAVE_ROOM, { roomCode: roomCode, user: auth.user })
       localsocket.current.off(roomCode)
     }
@@ -326,7 +399,7 @@ export default function RoomScreen({ route, navigation }: RootStackScreenProps<'
       <>
         <View style={{ height: 90, marginTop: 0 }}>
           {songs && songs.length > currentSongIndex &&
-            <SpotifyPlayer songUri={songs[currentSongIndex].song.uri} />}
+            <SpotifyPlayer songUri={songsRef.current[currentSongIndex].song.uri} />}
         </View>
         <ScrollView contentInsetAdjustmentBehavior="automatic" refreshControl={<RefreshControl refreshing={false} onRefresh={onRefresh} />}>
           <View style={{ marginHorizontal: 20, marginVertical: 20 }}>
@@ -363,6 +436,19 @@ export default function RoomScreen({ route, navigation }: RootStackScreenProps<'
             </ButtonComponent>
           </View>}
         </View>
+        {playAnimation &&
+          <View style={{
+            position: 'absolute',
+            bottom: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            backgroundColor: 'transparent',
+            justifyContent: 'flex-end',
+          }}>
+            <LottieAnimation animationData={animationJSON} onAnimationFinish={() => { setPlayAnimation(false) }} />
+          </View>
+        }
       </>
 
     )
