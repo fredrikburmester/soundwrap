@@ -134,7 +134,7 @@ io.on('connection', (socket) => {
 				socket.emit(ServerEmits.REQUEST_TO_JOIN_ROOM_ACCEPTED, room);
 				sendRoomUpdates(roomCode);
 			}).catch((err) => {
-				logMessage(err, 'Error getting top songs', 'error');
+				logMessage('Error getting top songs', 'error');
 			});
 		} else if (room.gamePosition === 1) {
 			// check if user is already in room
