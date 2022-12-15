@@ -1,25 +1,21 @@
 // @ts-nocheck
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react'
-import { StyleSheet, Image, FlatList, TouchableOpacity, ScrollView, TextInput, Switch, Button, Alert, Pressable, TouchableHighlight, RefreshControl, ActivityIndicator } from 'react-native'
-import { AuthContextType, IAuth, IGuess, IUser, NonAuthUser } from '../types/auth'
+import { Image, TouchableOpacity, ScrollView, Alert, Pressable, TouchableHighlight, RefreshControl, ActivityIndicator } from 'react-native'
+import { AuthContextType, IUser } from '../types/auth'
 import { Text, View } from '../components/Themed'
 import { AuthContext } from '../context/authContext'
 import { RootStackParamList, RootStackScreenProps } from '../types'
 import Colors from '../constants/Colors'
 import socket from '../utils/socket'
 import { Ionicons } from '@expo/vector-icons'
-import { IRoom } from '../types/room'
 import { FlashList } from '@shopify/flash-list'
 import { ButtonComponent } from '../components/ButtonComponent'
 import { SpotifyPlayer } from '../components/SpotifyPlayer'
 import { SongItem } from '../types/spotify'
 import {
   ClientEmits,
-  ServerEmits
 } from '../types/socket'
 import { useSpotify } from '../hooks/useSpotify'
-import * as Haptics from 'expo-haptics'
-import { useFocusEffect } from '@react-navigation/native'
 import { Toast } from 'react-native-toast-message/lib/src/Toast'
 
 export default function DemoRoomScreen({ route, navigation }: RootStackScreenProps<'DemoRoom'>) {
@@ -158,9 +154,7 @@ export default function DemoRoomScreen({ route, navigation }: RootStackScreenPro
   }
 
   const guessOnPress = (newGuess: string) => {
-    // Takes the user ID as the guess and sends it to the server
     setGuess(newGuess)
-    socket.emit(ClientEmits.GUESS, { guess: newGuess, roomCode: roomCode, user: auth.user, currentSongIndex: currentSongIndex })
   }
 
   const leaveRoom = () => {
@@ -190,30 +184,8 @@ export default function DemoRoomScreen({ route, navigation }: RootStackScreenPro
   }
 
   const saveSongs = () => {
+    //
   }
-
-  const generateRandomId = () => {
-    return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
-  }
-
-  useEffect(() => {
-    if (route.params?.nonAuthUser) {
-      // setNonAuthUsers([...nonAuthUsers, route.params.nonAuthUser])
-
-      // convert non-auth user to user for merging with players
-      const newUser: IUser = {
-        id: generateRandomId(),
-        name: route.params.nonAuthUser.name,
-        avatar: 'https://picsum.photos/200',
-        score: 0,
-        guesses: []
-      }
-
-      socket.emit('addNonAuthUser', { roomCode: roomCode, nonAuthUser: newUser, songs: route.params.nonAuthUser.songs })
-
-      setPlayers([...players, newUser])
-    }
-  }, [route.params?.nonAuthUser])
 
   useEffect(() => {
     if (createRoom) {
@@ -240,11 +212,15 @@ export default function DemoRoomScreen({ route, navigation }: RootStackScreenPro
       setCurrentSongIndex(0)
       setGamePosition(0)
       setConnected(true)
-      Toast.show({
-        type: 'error',
-        text1: 'No room found',
-        text2: 'Try another room code!',
-      })
+
+      setTimeout(() => {
+        setCurrentSongIndex(0)
+        setGamePosition(1)
+      }, 5000)
+
+      setTimeout(() => {
+        setGamePosition(2)
+      }, 10000)
     }
   }, [])
 
@@ -380,7 +356,7 @@ export default function DemoRoomScreen({ route, navigation }: RootStackScreenPro
               marginRight: 20,
             }}>{index + 1}</Text>
             <TouchableOpacity style={{ flex: 1 }} onPress={() => openGuessDetailModal(item)}>
-              <UserCard avatar={item.avatar} name={item.name} style={{ flex: 1 }} description={`Score: ${item.score} of ${currentSongIndex + 1}`} />
+              <UserCard avatar={item.avatar} name={item.name} style={{ flex: 1 }} description={`Score: ${guess ? 1 : 0} of ${currentSongIndex + 1}`} />
             </TouchableOpacity>
           </View>
         }
