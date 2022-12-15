@@ -36,6 +36,7 @@ import DemoTopSongsScreen from '../screens-demo/DemoTopSongsScreen'
 
 type Props = {
   colorScheme: ColorSchemeName
+  navigationRef: any
 }
 
 const MyTheme = {
@@ -46,11 +47,12 @@ const MyTheme = {
   },
 }
 
-const Navigation: React.FC<Props> = ({ colorScheme }: Props) => {
+const Navigation: React.FC<Props> = ({ colorScheme, navigationRef }: Props) => {
   return (
     <NavigationContainer
       linking={LinkingConfiguration}
-      theme={MyTheme}>
+      theme={MyTheme}
+      ref={navigationRef}>
       <RootNavigator />
     </NavigationContainer>
   )
