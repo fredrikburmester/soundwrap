@@ -419,11 +419,11 @@ export default function RoomScreen({ route, navigation }: RootStackScreenProps<'
             }}>Click on the player you think this song belongs to.</Text>
           </View>
           {players.map((item) =>
-            <TouchableHighlight style={{ marginHorizontal: 20, marginBottom: 10 }} onPress={() => guessOnPress(item.name)} key={item.id}>
-              <View style={guess == item.name ? { borderRadius: 10, shadowColor: Colors.primary, shadowRadius: 7, shadowOpacity: 1, elevation: 24 } : {}}>
+            <TouchableOpacity style={{ marginHorizontal: 20, marginBottom: 10, backgroundColor: 'transparent' }} onPress={() => guessOnPress(item.name)} key={item.id}>
+              <View style={guess == item.name ? { borderRadius: 10, borderColor: Colors.primary, borderStyle: 'solid', borderWidth: 2 } : {}}>
                 <UserCard avatar={item.avatar} name={item.name} description={item.guesses.some(guess => guess.currentSongIndex == currentSongIndex) ? 'Guessed' : ''} />
               </View>
-            </TouchableHighlight>
+            </TouchableOpacity>
           )}
         </ScrollView>
         <View style={{ marginBottom: 20 }}>
