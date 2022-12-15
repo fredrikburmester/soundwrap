@@ -56,7 +56,7 @@ export default function LoginScreen({ navigation }: RootStackScreenProps<'Login'
     }).start()
     Animated.timing(slideAnim4, {
       toValue: 0,
-      duration: 1500,
+      duration: 1000,
       useNativeDriver: true,
       easing: Easing.out(Easing.exp),
       delay: 1000
