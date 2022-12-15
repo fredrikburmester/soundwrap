@@ -42,6 +42,14 @@ export default function CreateRoomScreen({ navigation }: RootStackScreenProps<'C
   }
 
   const createRoom = () => {
+    if (name === '') {
+      showToast('error', 'Error', 'Please enter your name')
+      return
+    }
+    if (roomCode === '') {
+      showToast('error', 'Error', 'Please enter a room code')
+      return
+    }
     navigation.navigate('Room', { roomCode: roomCode, songsPerUser: songsPerUser, timeRange: timeRange, createRoom: true, nonAuthUser: undefined, name: name.trim() })
   }
 
