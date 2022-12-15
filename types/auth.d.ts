@@ -1,14 +1,14 @@
-export interface IGuess {
+export type IUserGuess = {
   currentSongIndex: number, 
   guess: string
 }
 
-export interface IUser {
+export type IUser = {
   id: string;
   name: string;
   avatar: string;
   score: number;
-  guesses: IGuess[]
+  guesses: IUserGuess[]
 }
 
 export interface IAuth {

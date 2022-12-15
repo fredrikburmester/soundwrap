@@ -1,6 +1,6 @@
 import { SongItem } from "./spotify"
 
-export interface IRoom {
+export type IRoom = {
 	roomCode: string;
 	host: IUser;
 	players: IUser[];
