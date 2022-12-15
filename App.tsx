@@ -10,8 +10,8 @@ import Toast, { BaseToast, ErrorToast } from 'react-native-toast-message'
 
 import socket from './utils/socket'
 import Colors from './constants/Colors'
-import { AppState } from 'react-native'
-import { AuthContextType } from './types/auth'
+
+import { navigationRef } from './hooks/useRootNavigation'
 
 export default function App() {
   const isLoadingComplete = useCachedResources()
@@ -26,7 +26,7 @@ export default function App() {
           color: 'white'
         }}
         text2Style={{
-          fontSize: 14,
+          fontSize: 12,
           color: 'white'
         }}
         style={{ backgroundColor: Colors.primary, borderLeftColor: Colors.primary, height: 80, borderRadius: 15, marginTop: 20, width: '90%' }}
@@ -40,7 +40,7 @@ export default function App() {
           color: 'white'
         }}
         text2Style={{
-          fontSize: 14,
+          fontSize: 12,
           color: 'white'
         }}
         style={{ backgroundColor: Colors.error, borderLeftColor: Colors.error, height: 80, borderRadius: 15, marginTop: 20, width: '90%' }}
@@ -59,14 +59,9 @@ export default function App() {
   useEffect(() => {
     // socket.connect()
 
-    socket.on("disconnect", (reason) => {
-      if (reason === "io server disconnect") {
-        socket.connect()
-      }
-    })
-
     socket.on('error', (title: string, error: string) => {
       showToast('error', title, error)
+      navigationRef.navigate('Home')
     })
 
     socket.on('info', (title: string, message: string) => {
@@ -80,7 +75,7 @@ export default function App() {
     return (
       <AuthProvider>
         <SafeAreaProvider>
-          {true && <Navigation colorScheme={colorScheme} />}
+          <Navigation colorScheme={colorScheme} navigationRef={navigationRef} />
           <StatusBar style="light" />
           <Toast
             position="top"
