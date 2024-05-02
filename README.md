@@ -1,6 +1,8 @@
 
 # Soundwrap
 
+⚠️ This app and repository is not in use. A new (web-based) version of this game can be found at [https://soundwrap.app](https://soundwrap.app)
+
 **Check out your top songs and artists from Spotify, create playlists, join your friends and guess each others favourite songs.**
 
 ![statping](https://img.shields.io/badge/dynamic/json?color=purple&label=Soundwrap&query=%24.services&url=https://status.soundwrap.app/health&suffix=%20services)
